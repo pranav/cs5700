@@ -31,7 +31,6 @@ sock.send("cs5700spring2013 HELLO "+NUID+'\n')
 # cs5700spring2013 STATUS [a number] [a math operator] [another number]\n
 # [0]              [1]    [2]        [3]               [4]
 def respondToMessage(msg):
-  #print msg
   msg = msg.split()
   # Some sanity
   arg1 = msg[2]
@@ -39,18 +38,21 @@ def respondToMessage(msg):
   operator = msg[3]
   eq = eval(arg1+operator+arg2)
   #cs5700spring2013 [the solution]\n
-  result = "cs5700spring2013 " + str(eq)
-  #print result
+  result = "cs5700spring2013 " + str(int(eq))
+  #print result,
   return result
 
 while True:
-  msg = sock.recv(2048)
-  if(msg.split()[2] == "BYE"):
+  msg = sock.recv(4096)
+  #print msg,
+  if 'BYE' in msg:
     print msg.split()[1]
     sock.close()
     break
-  else:
+  elif len(msg) > 2:
     response = respondToMessage(msg)
     sock.send(response)
+  else:
+    break
 
 
