@@ -38,7 +38,7 @@ def respondToMessage(msg):
   operator = msg[3]
   eq = eval(arg1+operator+arg2)
   #cs5700spring2013 [the solution]\n
-  result = "cs5700spring2013 " + str(int(eq))
+  result = "cs5700spring2013 " + str(int(eq)) + "\n"
   #print result,
   return result
 
