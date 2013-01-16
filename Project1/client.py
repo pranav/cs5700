@@ -44,7 +44,6 @@ def respondToMessage(msg):
 
 while True:
   msg = sock.recv(4096)
-  #print msg,
   if 'BYE' in msg:
     print msg.split()[1]
     sock.close()
