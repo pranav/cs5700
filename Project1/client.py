@@ -19,6 +19,7 @@ elif(sys.argv[2] == '-s'):
   sys.argv[3] = NUID
 
 else:
+  port = 27993
   NUID = sys.argv[2]
 
 # Set up the connection
