@@ -2,27 +2,38 @@
 
 import sys
 import socket
+import ssl
 
 # Argument parsing
 # Results in hostname, port, ssl
 hostname = sys.argv[1]
-
+sslHuh = False
+port = 27993
 if(sys.argv[2] == '-p'):
   port = int(sys.argv[3])
-  if sys.argv[4] == '-s':
-    ssl = True
+  if len(sys.argv) > 4 and sys.argv[4] == '-s':
+    sslHuh = True
+    NUID = sys.argv[5]
   else:
     NUID = sys.argv[4]
 
 elif(sys.argv[2] == '-s'):
-  ssl = True
-  sys.argv[3] = NUID
+  sslHuh = True
+  NUID = sys.argv[3]
+
+elif(len(sys.argv) > 4 and sys.argv[4] == '-s'):
+  sslHuh = True
+  NUID = sys.argv[5]
 
 else:
   NUID = sys.argv[2]
 
 # Set up the connection
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+if(sslHuh):
+  sock = ssl.wrap_socket(sock)
+
 sock.connect((hostname, port))
 sock.send("cs5700spring2013 HELLO "+NUID+'\n')
 
