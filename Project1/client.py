@@ -9,6 +9,7 @@ import ssl
 hostname = sys.argv[1]
 sslHuh = False
 port = 27993
+
 if(sys.argv[2] == '-p'):
   port = int(sys.argv[3])
   if len(sys.argv) > 4 and sys.argv[4] == '-s':
@@ -20,7 +21,9 @@ if(sys.argv[2] == '-p'):
 elif(sys.argv[2] == '-s'):
   sslHuh = True
   NUID = sys.argv[3]
+  port = 27994
 
+# Isn't this case covered in the first case?
 elif(len(sys.argv) > 4 and sys.argv[4] == '-s'):
   sslHuh = True
   NUID = sys.argv[5]
