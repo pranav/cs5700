@@ -1,7 +1,7 @@
 # CS5700: Project 1
 
 Eric Chin (chiner)
-Pranav Ghandi (hyfi)
+Pranav Gandhi (hyfi)
 
 ## High Level Approach
 
