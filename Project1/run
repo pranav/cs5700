@@ -1,0 +1,6 @@
+#!/bin/sh
+
+./client agentx.ccs.neu.edu -p 27993 000582102
+# ./client agentx.ccs.neu.edu -p 27993 000568047
+# ./client agentx.ccs.neu.edu 000582102
+./client agentx.ccs.neu.edu 000568047

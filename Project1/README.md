@@ -23,4 +23,9 @@ amount of confusion.
 
 ## Testing
 
-TODO
+Most of our testing revolved observing our program's interactions with the
+server.  Because we knew that the server would terminate our session with any of
+our bad input, we used those times as a cue to know when we had a problem.  That
+said, our testing was done by our communications with the server and making sure
+that our program is usable with the various combinations of uses per the project
+instructions.
