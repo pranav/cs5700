@@ -1,0 +1,21 @@
+# 5700 Project 2
+
+Eric Chin
+Pranav Gandhi
+
+
+# Overview of Idea
+
+1. Run ./webcrawler ...
+2. http:// fakebook 
+  - POST with password
+  - Receive a COOKIE
+3. Attach cookie to all future communications
+  - Request homepage
+  - Get HTML page
+4. Parse HTML
+  - look for flags (print if flag exists)
+  - crawl links
+5. When fifth flag is found, quit
+
+
