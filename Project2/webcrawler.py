@@ -84,7 +84,6 @@ def do_login():
 
 
 # Connect to server and login
-sock = connect()
 do_login()
 
 # Keep launching threads until we have 5 flags
