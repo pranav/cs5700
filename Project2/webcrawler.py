@@ -14,9 +14,7 @@ port = 80;
 visited_links = []
 secret_flags = []
 link_queue = ["/fakebook"] # Start with /facebook
-csrf_cookie = ""
-sessionid = ""
-
+cookies = []
 
 
 # Parse links from HTMLParser constructed from given html document
