@@ -83,6 +83,13 @@ def get_headers(link):
   reply = send(headers)
   return reply
 
+# Just send a message to the server and return the reply
+def send(raw):
+  sock = connect()
+  sock.send(raw)
+  return sock.recv(10000)
+
+
 # Uses raw headers, and gets cookies out of them
 def set_cookies(headers):
   for line in headers.split('\n'):
