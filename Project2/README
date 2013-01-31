@@ -7,15 +7,29 @@ Pranav Gandhi
 # Overview of Idea
 
 1. Run ./webcrawler ...
+  - socket connection to server
+  - build HTTP GET to /account/login
+  - respond to error codes
+  - deal with two cookies we get
 2. http:// fakebook 
-  - POST with password
+  - HTTP POST with cookies, login
   - Receive a COOKIE
-3. Attach cookie to all future communications
+3. Attach cookie to all future communications (function for post() and get() to append cookies to our requests)
   - Request homepage
   - Get HTML page
 4. Parse HTML
   - look for flags (print if flag exists)
   - crawl links
+  - repeat
 5. When fifth flag is found, quit
 
 
+# Tasks
+
+* Parse error codes from HTTP responses
+  1. Deal with each error code differently
+* Dealing with cookies
+* Login requires
+  1. get two cookies from initial session page
+     - csrftoken, sessonid
+  2. use both cookies to log in
