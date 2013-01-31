@@ -37,11 +37,6 @@ def connect():
   sock.connect((hostname, port))
   return sock
 
-<<<<<<< HEAD:Project2/webcrawler.py
-# Check to see if we've been to a link
-def have_we_been_there_yet(link):
-  return link in visited_links
-
 # Hacky and stupid way to find flags using pattern matching but easier
 # than parsing
 def try_to_find_flags( html ):
@@ -59,18 +54,6 @@ def get_new_links( html ):
 
 
 
-def launch_thread():
-  link = link_queue.pop()
-  html = get_page(link) # Handles error messages
-  try_to_find_flags( html ) # Will add to secret_flags
-  get_new_links( html ) # Will add to link_queue
-
-
-
-
-
-
-=======
 # Checks if link is in visited_links
 def have_we_been_there_yet(link):
   return link in visited_links
@@ -82,7 +65,6 @@ class Launch_Thread(threading.Thread):
     html = get_page(link) # Handles error messages
     try_to_find_flags(html) # Will add to secret_flags
     get_new_links(html) # Will add to link_queue
->>>>>>> 9f8aa5f191d5f31bb7e53d8c678ea37b478c8d52:Project2/webcrawler.py
 
 
 # Connect to server and login
