@@ -1,0 +1,3 @@
+POST /accounts/login/ HTTP/1.1
+Host: cs5700f12.ccs.neu.edu
+username=000582102&password=7OYT6RMO
