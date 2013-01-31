@@ -14,7 +14,7 @@ port = 80;
 
 visited_links = []
 secret_flags = []
-link_queue = ["/fakebook"] # Start with /facebook
+link_queue = ["/fakebook/"] # Start with /facebook
 cookies = [] # An array of tuples. a tuple is a (name_of_cookie, value_of_cookie)
 
 
@@ -73,7 +73,23 @@ def do_login():
   headers = send(headers) # Send the POST request to the server
   set_cookies(headers) # Save any updated cookies. We should be logged in now.
 
+# Get the requested page and send all the cookies while doing it
+def get_page(link):
+  headers = """GET {link} HTTP/1.1
+Host: cs5700f12.ccs.neu.edu
+{cookies}
 
+
+  """.format(link=link, cookies=stringify_cookies())
+  reply = send(headers)
+  return reply.split("\r\n\r\n")[1]
+
+# Generate cookie header from the cookies variable
+def stringify_cookies():
+  cookie_s = "Cookie: "
+  for c in cookies:
+    cookie_s += c[0] + "=" + c[1] + "; "
+  return cookie_s
 
 # Simple function that sends some headers
 def get_headers(link):
@@ -124,11 +140,11 @@ def generate_login_headers():
 do_login()
 
 # Keep launching threads until we have 5 flags
-#while len(secret_flags) < 5:
-#  if len(link_queue) > 0:
-#    Launch_Thread().start()
-#  else:
-#    time.sleep(1) # Give it a chance to find more links
+while len(secret_flags) < 5:
+  if len(link_queue) > 0:
+    Launch_Thread().start()
+  else:
+    time.sleep(1) # Give it a chance to find more links
 
 # Print flags at the end
 for flag in secret_flags:
