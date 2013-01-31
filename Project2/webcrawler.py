@@ -3,6 +3,7 @@
 import sys
 import socket
 import time
+import threading
 
 from HTMLParser import HTMLParser
 
@@ -14,7 +15,7 @@ port = 80;
 visited_links = []
 secret_flags = []
 link_queue = ["/fakebook"] # Start with /facebook
-cookies = []
+cookies = [] # An array of tuples. a tuple is a (name_of_cookie, value_of_cookie)
 
 
 # Parse links from HTMLParser constructed from given html document
@@ -25,7 +26,7 @@ class LinkParser( HTMLParser ):
             link = next( sub1 for sub1 in attrs if 'href' in sub1 )[1]
 
             # print link
-            if not have_we_been_there_yet( link )
+            if not have_we_been_there_yet( link ):
                 link_queue.append( link )
 
 
@@ -92,19 +93,24 @@ def send(raw):
 
 # Uses raw headers, and gets cookies out of them
 def set_cookies(headers):
+  global cookies # Need this to modify global variables
   for line in headers.split('\n'):
     if line.find("Set-Cookie") >= 0:
       cookie_name = line.split()[1].split('=')[0]
       cookie_value = line.split()[1].split('=')[1].split(';')[0]
-      cookies[cookie_name] = cookie_value
+      cookies.append((cookie_name, cookie_value))
 
 
 def generate_login_headers():
+  cookie_s = ""
+  for cookie in cookies:
+    cookie_s = cookie_s + cookie[0] + "=" + cookie[1]
+
   headers = """POST /accounts/login HTTP/1.1
   Host: cs5700f12.ccs.neu.edu
   Referrer: cs5700f12.ccs.neu.edu
 
-  username={username}&password={password}&csrftoken={cookies['csrfmiddlewaretoken']}
+  username={username}&password={password}&{cookie_s}
 
 
   """
