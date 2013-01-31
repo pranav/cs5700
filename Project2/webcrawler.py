@@ -67,20 +67,23 @@ class Launch_Thread(threading.Thread):
 
 # Handle all login related things
 def do_login():
-  headers = get_headers("/account/login") # Send get request to get cookies
+  headers = get_headers("/accounts/login/") # Send get request to get cookies
   set_cookies(headers) # Save those 2 cookies
   headers = generate_login_headers() # Create a new POST request to login with the cookies
   headers = send(headers) # Send the POST request to the server
   set_cookies(headers) # Save any updated cookies. We should be logged in now.
 
+
+
 # Simple function that sends some headers
 def get_headers(link):
-  headers = """GET {link} HTTP/1.1
-  Host: cs5700f12.ccs.neu.edU
+  headers = """
+GET {link} HTTP/1.1
+Host: cs5700f12.ccs.neu.edU
 
 
 
-  """
+  """.format(link=link)
   reply = send(headers)
   return reply
 
@@ -121,11 +124,11 @@ def generate_login_headers():
 do_login()
 
 # Keep launching threads until we have 5 flags
-while len(secret_flags) < 5:
-  if len(link_queue) > 0:
-    Launch_Thread().start()
-  else:
-    time.sleep(1) # Give it a chance to find more links
+#while len(secret_flags) < 5:
+#  if len(link_queue) > 0:
+#    Launch_Thread().start()
+#  else:
+#    time.sleep(1) # Give it a chance to find more links
 
 # Print flags at the end
 for flag in secret_flags:
