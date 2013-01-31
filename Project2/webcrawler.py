@@ -99,9 +99,16 @@ def set_cookies(headers):
       cookies[cookie_name] = cookie_value
 
 
+def generate_login_headers():
+  headers = """POST /accounts/login HTTP/1.1
+  Host: cs5700f12.ccs.neu.edu
+  Referrer: cs5700f12.ccs.neu.edu
+
+  username={username}&password={password}&csrftoken={cookies['csrfmiddlewaretoken']}
 
 
-
+  """
+  return headers
 
 
 # Connect to server and login
