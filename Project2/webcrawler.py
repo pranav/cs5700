@@ -72,8 +72,24 @@ def do_login():
   headers = send(headers) # Send the POST request to the server
   set_cookies(headers) # Save any updated cookies. We should be logged in now.
 
+# Simple function that sends some headers
+def get_headers(link):
+  headers = """GET {link} HTTP/1.1
+  Host: cs5700f12.ccs.neu.edU
 
 
+
+  """
+  reply = send(headers)
+  return reply
+
+# Uses raw headers, and gets cookies out of them
+def set_cookies(headers):
+  for line in headers.split('\n'):
+    if line.find("Set-Cookie") >= 0:
+      cookie_name = line.split()[1].split('=')[0]
+      cookie_value = line.split()[1].split('=')[1].split(';')[0]
+      cookies[cookie_name] = cookie_value
 
 
 
