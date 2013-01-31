@@ -66,6 +66,22 @@ class Launch_Thread(threading.Thread):
     try_to_find_flags(html) # Will add to secret_flags
     get_new_links(html) # Will add to link_queue
 
+# Handle all login related things
+def do_login():
+  headers = get_headers("/account/login") # Send get request to get cookies
+  set_cookies(headers) # Save those 2 cookies
+  headers = generate_login_headers() # Create a new POST request to login with the cookies
+  headers = send(headers) # Send the POST request to the server
+  set_cookies(headers) # Save any updated cookies. We should be logged in now.
+
+
+
+
+
+
+
+
+
 
 # Connect to server and login
 sock = connect()
