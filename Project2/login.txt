@@ -1,3 +1,8 @@
 POST /accounts/login/ HTTP/1.1
 Host: cs5700f12.ccs.neu.edu
-username=000582102&password=7OYT6RMO
+Referrer: http://cs5700f12.ccs.neu.edu/accounts/login/
+
+username=000582102&password=7OYT6RMO&csrfmiddlewaretoken=a2247baa6dd82ae0bb61af0264441595
+
+
+
