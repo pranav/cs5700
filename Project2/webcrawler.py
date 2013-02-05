@@ -112,7 +112,7 @@ Host: cs5700f12.ccs.neu.edU
 
 # Just send a message to the server and return the reply
 def send(raw):
-  # sock = connect()
+  sock = connect()
   sock.send(raw)
   return sock.recv(10000)
 
@@ -164,8 +164,6 @@ def generate_login_headers():
   print headers
 
   return headers
-
-sock = connect()
 
 # Connect to server and login
 do_login()
