@@ -78,6 +78,7 @@ def do_login():
   headers = send(headers) # Send the POST request to the server
   print headers
   set_cookies(headers) # Save any updated cookies. We should be logged in now.
+  print cookies
   print "login complete"
 
 # Get the requested page and send all the cookies while doing it
@@ -142,25 +143,25 @@ def generate_login_headers():
   content_length = len( data )
 
   headers = """POST /accounts/login HTTP/1.1
-  Host: cs5700f12.ccs.neu.edu
-  Connection: keep-alive
-  Content-Length: {content_length}
-  Cache-Control: max-age=0
-  Accept: text/html,application/xhtml+xml,application/xml
-  Origin: http://cs5700f12.ccs.neu.edu
-  User-Agent: Mozilla/5.0 (X11; Linux i686)
-  Content-Type: application/x-www-form-urlencoded
-  Referer: http://cs5700f12.ccs.neu.edu/accounts/login/?next=/fakebook/
-  Accept-Encoding: identity
-  Accept-Language: en-US,en;q=0.8
-  Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3
-  Cookies:{cookie_s}
-  Content-Encoding: identity
+Host: cs5700f12.ccs.neu.edu
+Connection: keep-alive
+Content-Length: {content_length}
+Cache-Control: max-age=0
+Accept: text/html,application/xhtml+xml,application/xml
+Origin: http://cs5700f12.ccs.neu.edu
+User-Agent: Mozilla/5.0 (X11; Linux i686)
+Content-Type: application/x-www-form-urlencoded
+Referer: http://cs5700f12.ccs.neu.edu/accounts/login/?next=/fakebook/
+Accept-Encoding: identity
+Accept-Language: en-US,en;q=0.8
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3
+Cookies:{cookie_s}
+Content-Encoding: identity
 
-  {data}
+{data}
 
 
-  """.format(cookie_s=cookie_s,content_length=content_length,data=data)
+""".format(cookie_s=cookie_s,content_length=content_length,data=data)
   print headers
 
   return headers
