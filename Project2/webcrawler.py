@@ -46,6 +46,7 @@ def try_to_find_flags( html ):
 
     if len( html2 ) > 1:
         at = html2[1]
+        secret_flag.append(at[ 0:at.find( '</h2>' ) ].strip())
         print at[ 0:at.find( '</h2>' ) ].strip()
 
 
@@ -58,15 +59,21 @@ def get_new_links( html ):
 
 # Checks if link is in visited_links
 def have_we_been_there_yet(link):
-  return link in visited_links
+  if link in visited_links:
+    return True
+  else:
+    False
 
 # Class for launching threads
 class Launch_Thread(threading.Thread):
   def run(self):
+    global thread_count
     link = link_queue.pop()
     html = get_page(link) # Handles error messages
     try_to_find_flags(html) # Will add to secret_flags
     get_new_links(html) # Will add to link_queue
+    thread_count += -1
+    return
 
 # Handle all login related things
 def do_login():
@@ -78,6 +85,7 @@ def do_login():
 
 # Get the requested page and send all the cookies while doing it
 def get_page(link):
+  visited_links.append(link)
   headers = """GET {link} HTTP/1.1
 Host: cs5700f12.ccs.neu.edu
 {cookies}
@@ -110,7 +118,6 @@ def send(raw):
   sock = connect()
   sock.send(raw)
   reply = sock.recv(10000)
-  print raw
   sock.close()
   return reply
 
@@ -151,8 +158,12 @@ do_login()
 
 
 # Keep launching threads until we have 5 flags
+run_count = 0
+thread_count = 0
 while len(secret_flags) < 5:
-  if len(link_queue) > 0:
+  if len(link_queue) > 0 and thread_count < 100:
+    run_count += 1
+    thread_count += 1
     Launch_Thread().start()
   else:
     time.sleep(1) # Give it a chance to find more links
