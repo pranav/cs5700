@@ -43,10 +43,11 @@ def connect():
 # than parsing
 def try_to_find_flags( html ):
     html2 = html.split("<h2 class='secret_flag' style=\"color:red\">")
+    global secret_flags
 
     if len( html2 ) > 1:
         at = html2[1]
-        secret_flag.append(at[ 0:at.find( '</h2>' ) ].strip())
+        secret_flags.append(at[ 0:at.find( '</h2>' ) ].strip())
         print at[ 0:at.find( '</h2>' ) ].strip()
 
 
