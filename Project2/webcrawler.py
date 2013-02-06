@@ -16,7 +16,7 @@ port = 80;
 visited_links = []
 secret_flags = []
 link_queue = ["/fakebook/"] # Start with /facebook
-cookies = [] # An array of tuples. a tuple is a (name_of_cookie, value_of_cookie)
+cookies = {} # An array of tuples. a tuple is a (name_of_cookie, value_of_cookie)
 
 
 # Parse links from HTMLParser constructed from given html document
@@ -74,7 +74,7 @@ def do_login():
   set_cookies(headers) # Save those 2 cookies
   headers = generate_login_headers() # Create a new POST request to login with the cookies
   headers = send(headers) # Send the POST request to the server
-  #set_cookies(headers) # Save any updated cookies. We should be logged in now.
+  set_cookies(headers) # Save any updated cookies. We should be logged in now.
 
 # Get the requested page and send all the cookies while doing it
 def get_page(link):
@@ -90,8 +90,7 @@ Host: cs5700f12.ccs.neu.edu
 # Generate cookie header from the cookies variable
 def stringify_cookies():
   cookie_s = "Cookie: "
-  for c in cookies:
-    cookie_s += c[0] + "=" + c[1] + "; "
+  cookie_s = "Cookie: csrftoken="+cookies['csrftoken']+"; sessionid="+cookies['sessionid']
   return cookie_s
 
 # Simple function that sends some headers
@@ -112,7 +111,6 @@ def send(raw):
   sock.send(raw)
   reply = sock.recv(10000)
   print raw
-  print reply
   sock.close()
   return reply
 
@@ -124,14 +122,14 @@ def set_cookies(headers):
     if line.find("Set-Cookie") >= 0:
       cookie_name = line.split()[1].split('=')[0]
       cookie_value = line.split()[1].split('=')[1].split(';')[0]
-      cookies.append((cookie_name, cookie_value))
+      cookies[cookie_name] = cookie_value
 
 # Generate the headers that would do the login
 def generate_login_headers():
   # Cookies are [(cookie_name, cookie_value)]
   # Generate cookie string
-  csrftoken = dict(cookies)['csrftoken']
-  cookie_str = "Cookie: "+cookies[0][0]+'='+cookies[0][1]+"; "+cookies[1][0]+"="+cookies[1][1]
+  csrftoken = cookies['csrftoken']
+  cookie_str = "Cookie: csrftoken="+cookies['csrftoken']+"; sessionid="+cookies['sessionid']
   post_data = "csrfmiddlewaretoken="+csrftoken+"&username="+username+"&password="+password+"&next=%2Ffakebook%2F"
   content_len = len(post_data)
 
