@@ -15,6 +15,7 @@ port = 80;
 
 visited_links = []
 secret_flags = []
+flag_links = []
 link_queue = ["/fakebook/"] # Start with /facebook
 cookies = {} # Dictionary mapping of cookie name to value
 
@@ -41,14 +42,16 @@ def connect():
 
 # Hacky and stupid way to find flags using pattern matching but easier
 # than parsing
-def try_to_find_flags( html ):
+def try_to_find_flags( link, html ):
     html2 = html.split("<h2 class='secret_flag' style=\"color:red\">")
     global secret_flags
 
     if len( html2 ) > 1:
         at = html2[1]
         secret_flags.append(at[ 0:at.find( '</h2>' ) ].strip())
+        flag_links.append( link )
         print at[ 0:at.find( '</h2>' ) ].strip()
+        # print link
 
 
 # Parse HTML to populate link queue with new links
@@ -230,7 +233,7 @@ while len(secret_flags) < 5:
     html = get_page(link) # Handles error messages
 
     if len( html ) > 0:
-        try_to_find_flags(html) # Will add to secret_flags
+        try_to_find_flags(link, html) # Will add to secret_flags
         get_new_links(html) # Will add to link_queue
         # thread_count += -1 # Lowers thread count once done
 
@@ -240,7 +243,7 @@ while len(secret_flags) < 5:
     # time.sleep(1) # Give it a chance to find more links, haven't really made this thread safe :)
 
 # Print flags at the end
-for flag in secret_flags:
-  print flag
+# for flag in secret_flags:
+#  print flag
 
 
