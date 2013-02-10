@@ -16,7 +16,7 @@ port = 80;
 visited_links = []
 secret_flags = []
 link_queue = ["/fakebook/"] # Start with /facebook
-cookies = {} # An array of tuples. a tuple is a (name_of_cookie, value_of_cookie)
+cookies = {} # Dictionary mapping of cookie name to value
 
 
 # Parse links from HTMLParser constructed from given html document
