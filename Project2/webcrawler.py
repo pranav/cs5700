@@ -94,6 +94,10 @@ Host: cs5700f12.ccs.neu.edu
 
   """.format(link=link, cookies=stringify_cookies())
   reply = send(headers)
+
+  if has_error(reply):
+    reply = handle_error(reply)
+
   return reply.split("\r\n\r\n")[1]
 
 # Generate cookie header from the cookies variable
