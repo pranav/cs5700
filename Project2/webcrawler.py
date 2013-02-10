@@ -161,17 +161,14 @@ Content-Length: {content_len}
 # Connect to server and login
 do_login()
 
-
 # Keep launching threads until we have 5 flags
-run_count = 0
 thread_count = 0
 while len(secret_flags) < 5:
-  if len(link_queue) > 0 and thread_count < 100:
-    run_count += 1
+  if len(link_queue) > 0 and thread_count < 100: # 100 threads seems to be around what a CCIS lab machine can handle
     thread_count += 1
     Launch_Thread().start()
   else:
-    time.sleep(1) # Give it a chance to find more links
+    time.sleep(1) # Give it a chance to find more links, haven't really made this thread safe :)
 
 # Print flags at the end
 for flag in secret_flags:
