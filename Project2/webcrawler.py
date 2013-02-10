@@ -86,6 +86,7 @@ def do_login():
 
 # Get the requested page and send all the cookies while doing it
 def get_page(link):
+  # print "get page", link
   visited_links.append(link)
   headers = """GET {link} HTTP/1.1
 Host: cs5700f12.ccs.neu.edu
@@ -95,10 +96,68 @@ Host: cs5700f12.ccs.neu.edu
   """.format(link=link, cookies=stringify_cookies())
   reply = send(headers)
 
-  if has_error(reply):
-    reply = handle_error(reply)
+  status = get_status(reply)
 
-  return reply.split("\r\n\r\n")[1]
+  if has_error(status):
+    reply = handle_error(status, reply, link)
+
+  if reply == "":
+    return ""
+
+  reply = reply.split("\r\n\r\n")
+
+  if len(reply) > 1:
+      # print reply
+      return reply[1]
+  else:
+      return ""
+
+def get_status( reply ):
+    reply_l = reply.lower();
+
+    if "500 internal server error" in reply_l:
+        return 500
+
+    elif "403 forbidden" in reply_l:
+        return 403
+
+    elif "404 not found" in reply_l:
+        return 404
+
+    elif "301 moved permanently" in reply_l:
+        return 301
+
+    elif "200 ok" in reply_l:
+        return 200
+
+    else:
+        # unknown?
+        return -1
+
+
+
+def handle_error(status, reply, link):
+    reply_l = reply.lower();
+
+    if status == 500:
+        return get_page( link )
+
+    elif status == 403 or status == 404:
+        return ""
+
+    elif status == 301:
+        for line in reply.split("\n"):
+            if "Location:" in line:
+                line = line.split()
+                return get_page( line[1] )
+        return ""
+
+    else: return ""
+
+
+
+def has_error(status):
+    return status == 500 or status == 403 or status == 404 or status == 301
 
 # Generate cookie header from the cookies variable
 def stringify_cookies():
@@ -165,10 +224,20 @@ do_login()
 thread_count = 0
 while len(secret_flags) < 5:
   if len(link_queue) > 0 and thread_count < 100: # 100 threads seems to be around what a CCIS lab machine can handle
-    thread_count += 1
-    Launch_Thread().start()
+    # thread_count += 1
+
+    link = link_queue.pop()
+    html = get_page(link) # Handles error messages
+
+    if len( html ) > 0:
+        try_to_find_flags(html) # Will add to secret_flags
+        get_new_links(html) # Will add to link_queue
+        # thread_count += -1 # Lowers thread count once done
+
+    # Launch_Thread().start()
   else:
-    time.sleep(1) # Give it a chance to find more links, haven't really made this thread safe :)
+    pass
+    # time.sleep(1) # Give it a chance to find more links, haven't really made this thread safe :)
 
 # Print flags at the end
 for flag in secret_flags:
