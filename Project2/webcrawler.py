@@ -73,7 +73,7 @@ class Launch_Thread(threading.Thread):
     html = get_page(link) # Handles error messages
     try_to_find_flags(html) # Will add to secret_flags
     get_new_links(html) # Will add to link_queue
-    thread_count += -1
+    thread_count += -1 # Lowers thread count once done
     return
 
 # Handle all login related things
