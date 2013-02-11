@@ -4,6 +4,45 @@ Eric Chin
 Pranav Gandhi
 
 
+High Level Approach
+===================
+
+We began by considering the data flow of a Fakebook crawler, understanding the
+program to perform the following tasks:
+
+  1. Run program
+  2. Connect to server
+  3. Get cookies and authenticate
+  4. Get HTML page
+  5. Parse HTML
+     - Look for flags
+     - Visit every link not yet seen
+  6. Quit when fifth flag is found
+
+By outlining this, we had more specific goals to accomplish, which we did in
+sequence.
+
+
+Challenges
+==========
+
+At first, we had trouble with authenticating because of malformed HTTP requests
+and cookie problems, but after resolving that issue, we did not encounter any
+significant challenges to the program.
+
+
+Testing Code
+============
+
+To test our code, we made sure each part of the program worked on its own, 
+checking to make sure our HTTP requests were properly formed, our parsing
+worked as intended, and our crawler visited new pages.
+
+
+
+Old Thoughts and Outline
+========================
+
 # Overview of Idea
 
 1. Run ./webcrawler ...
