@@ -2,7 +2,7 @@
 
 import sys, os
 cmd = """/course/cs4700f12/ns-allinone-2.35/bin/ns ns-simple.tcl"""
-tcpvar = "TCP"
+tcpvar = sys.argv[1]
 
 count = 0       # total number of packets
 drops = 0       # dropped packets
@@ -33,11 +33,11 @@ cbr_bw = 1
 
 for cbr_bw in range(1, 100):
     # Run the script for the current bandwidth
-    os.system("""{cmd} {cbr_bw}mb e1_{cbr_bw}.tr {tcpvar}""".format(cmd=cmd,cbr_bw=cbr_bw, tcpvar=tcpvar))
+    os.system("""{cmd} {cbr_bw}mb e1_{tcpvar}_{cbr_bw}.tr {tcpvar}""".format(cmd=cmd,cbr_bw=cbr_bw, tcpvar=tcpvar))
 
 
     # Parse File
-    f = open( """e1_{cbr_bw}.tr""".format(cbr_bw=cbr_bw), "r" )
+    f = open( """e1_{tcpvar}_{cbr_bw}.tr""".format(cbr_bw=cbr_bw, tcpvar=tcpvar), "r" )
 
     count = 0       # total number of packets
     drops = 0       # dropped packets
@@ -52,7 +52,10 @@ for cbr_bw in range(1, 100):
         # calculate_latency(lst)
 
     throughput = bytes / 5
-    droprate = drops / count
+    if count > 0:
+        droprate = drops / count
+    else:
+        droprate = 0
 
     print ""
     print "Calculations for bandwith of", cbr_bw, "mb"
