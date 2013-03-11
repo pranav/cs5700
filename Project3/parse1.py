@@ -2,6 +2,8 @@
 
 import sys, os
 cmd = """/course/cs4700f12/ns-allinone-2.35/bin/ns ns-simple.tcl"""
+tcpvar = "TCP"
+
 count = 0       # total number of packets
 drops = 0       # dropped packets
 bytes = 0       # total bytes transferred
@@ -31,7 +33,7 @@ cbr_bw = 1
 
 for cbr_bw in range(1, 100):
     # Run the script for the current bandwidth
-    os.system("""{cmd} {cbr_bw}mb e1_{cbr_bw}.tr""".format(cmd=cmd,cbr_bw=cbr_bw))
+    os.system("""{cmd} {cbr_bw}mb e1_{cbr_bw}.tr {tcpvar}""".format(cmd=cmd,cbr_bw=cbr_bw, tcpvar=tcpvar))
 
 
     # Parse File

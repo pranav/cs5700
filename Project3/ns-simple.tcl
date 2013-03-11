@@ -1,10 +1,11 @@
-if {[llength $argv] != 2} {
+if {[llength $argv] != 3} {
     puts "Missing parameter: cbr_bw, tracefile"
     exit 1
 }
 
 set bw [lindex $argv 0]
 set tfname [lindex $argv 1]
+set tcpv [lindex $argv 2]
 
 #Create a simulator object
 set ns [new Simulator]
@@ -57,7 +58,7 @@ $ns duplex-link-op $n2 $n3 queuePos 0.5
 
 # Connect Node 1 and Node 4 with a TCP stream
 
-set tcp1 [new Agent/TCP]
+set tcp1 [new Agent/$tcpv]
 $ns attach-agent $n1 $tcp1
 $tcp1 set class_ 2
 
