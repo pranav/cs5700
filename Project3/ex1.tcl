@@ -68,6 +68,9 @@ $sink4 set fid_ 1
 
 $ns connect $tcp1 $sink4
 
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ftp1 set type FTP
 
 # Connect N2 and N3
 
@@ -95,16 +98,14 @@ $cbr2 attach-agent $udp2
 # set tcp [new Agent/TCP/{Reno, Newreno, Vegas}]  #for others
 
 # Schedule events for the CBR and FTP agents
-$ns at 0.05 "$cbr2 start"
-#$ns at 0.01 "$tcp1 start"
-#$ns at 4.50 "$tcp1 stop"
-$ns at 5.05 "$cbr2 stop"
+$ns at 0.05 "$ftp1 start"
+$ns at 5.05 "$ftp1 stop"
 
 #Detach tcp and sink agents (not really necessary)
 # $ns at 4.5 "$ns detach-agent $n0 $tcp ; $ns detach-agent $n3 $sink"
 
 #Call the finish procedure after 5 seconds of simulation time
-$ns at 5.05 "finish"
+$ns at 5.10 "finish"
 
 #Print CBR packet size and interval
 puts "CBR packet size = [$cbr2 set packet_size_]"
