@@ -99,6 +99,8 @@ $cbr2 attach-agent $udp2
 
 # Schedule events for the CBR and FTP agents
 $ns at 0.05 "$ftp1 start"
+$ns at 0.05 "$cbr2 start"
+$ns at 5.05 "$cbr2 stop"
 $ns at 5.05 "$ftp1 stop"
 
 #Detach tcp and sink agents (not really necessary)
