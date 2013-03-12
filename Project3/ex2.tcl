@@ -1,11 +1,12 @@
-if {[llength $argv] != 3} {
+if {[llength $argv] != 4} {
     puts "Missing parameter: cbr_bw, tracefile"
     exit 1
 }
 
 set bw [lindex $argv 0]
 set tfname [lindex $argv 1]
-set tcpv [lindex $argv 2]
+set tcpv1 [lindex $argv 2]
+set tcpv2 [lindex $argv 3]
 
 #Create a simulator object
 set ns [new Simulator]
@@ -58,15 +59,38 @@ $ns duplex-link-op $n2 $n3 queuePos 0.5
 
 # Connect Node 1 and Node 4 with a TCP stream
 
-set tcp1 [new Agent/$tcpv]
+set tcp1 [new Agent/$tcpv1]
 $ns attach-agent $n1 $tcp1
 $tcp1 set class_ 2
+
 
 set sink4 [new Agent/TCPSink]
 $ns attach-agent $n4 $sink4
 $sink4 set fid_ 1
 
 $ns connect $tcp1 $sink4
+
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ftp1 set type FTP
+
+# Connect Node 5 and Node 6 with a TCP stream
+
+set tcp5 [new Agent/$tcpv2]
+$ns attach-agent $n5 $tcp5
+$tcp5 set class_ 3
+
+set sink6 [new Agent/TCPSink]
+$ns attach-agent $n6 $sink6
+$sink6 set fid_ 0
+
+$ns connect $tcp5 $sink6
+
+set ftp5 [new Application/FTP]
+$ftp5 attach-agent $tcp5
+$ftp5 set type FTP
+
+
 
 
 # Connect N2 and N3
@@ -95,16 +119,16 @@ $cbr2 attach-agent $udp2
 # set tcp [new Agent/TCP/{Reno, Newreno, Vegas}]  #for others
 
 # Schedule events for the CBR and FTP agents
-$ns at 0.05 "$cbr2 start"
-#$ns at 0.01 "$tcp1 start"
-#$ns at 4.50 "$tcp1 stop"
-$ns at 5.05 "$cbr2 stop"
+$ns at 0.05 "$ftp1 start"
+$ns at 0.05 "$ftp5 start"
+$ns at 5.05 "$ftp1 stop"
+$ns at 5.05 "$ftp5  stop"
 
 #Detach tcp and sink agents (not really necessary)
 # $ns at 4.5 "$ns detach-agent $n0 $tcp ; $ns detach-agent $n3 $sink"
 
 #Call the finish procedure after 5 seconds of simulation time
-$ns at 5.05 "finish"
+$ns at 5.10 "finish"
 
 #Print CBR packet size and interval
 puts "CBR packet size = [$cbr2 set packet_size_]"
