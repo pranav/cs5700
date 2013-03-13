@@ -14,13 +14,6 @@ set ns [new Simulator]
 set tf [open $tfname w]
 $ns trace-all $tf
 
-#Define different colors for data flows (for NAM)
-$ns color 1 Blue
-$ns color 2 Red
-
-#Open the NAM trace file
-#set nf [open out.nam w]
-#$ns namtrace-all $nf
 
 #Define a 'finish' procedure
 proc finish {} {
@@ -28,8 +21,6 @@ proc finish {} {
         $ns flush-trace
         #Close the NAM trace file
         close $tf
-        #Execute NAM on the trace file
-        #exec nam out.nam &
         exit 0
 }
 
@@ -61,12 +52,12 @@ $ns duplex-link-op $n2 $n3 queuePos 0.5
 
 set tcp1 [new Agent/$tcpv1]
 $ns attach-agent $n1 $tcp1
-$tcp1 set class_ 2
+# $tcp1 set class_ 2
 
 
 set sink4 [new Agent/TCPSink]
 $ns attach-agent $n4 $sink4
-$sink4 set fid_ 1
+# $sink4 set fid_ 1
 
 $ns connect $tcp1 $sink4
 
@@ -78,11 +69,11 @@ $ftp1 set type FTP
 
 set tcp5 [new Agent/$tcpv2]
 $ns attach-agent $n5 $tcp5
-$tcp5 set class_ 3
+# $tcp5 set class_ 3
 
 set sink6 [new Agent/TCPSink]
 $ns attach-agent $n6 $sink6
-$sink6 set fid_ 0
+# $sink6 set fid_ 0
 
 $ns connect $tcp5 $sink6
 
@@ -121,6 +112,9 @@ $cbr2 attach-agent $udp2
 # Schedule events for the CBR and FTP agents
 $ns at 0.05 "$ftp1 start"
 $ns at 0.05 "$ftp5 start"
+$ns at 0.05 "$cbr2 start"
+
+$ns at 5.05 "$cbr2 stop"
 $ns at 5.05 "$ftp1 stop"
 $ns at 5.05 "$ftp5  stop"
 
@@ -137,6 +131,4 @@ puts "CBR interval = [$cbr2 set interval_]"
 # Run the simulation
 $ns run
 
-# close $tf
-
-
+close $tf

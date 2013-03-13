@@ -24,7 +24,6 @@ else:
 
 
 
-cbr_bw = 1
 
 for cbr_bw in range(1, 100):
     # Run the script for the current bandwidth
