@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys, os
-cmd = """/course/cs4700f12/ns-allinone-2.35/bin/ns ns-simple.tcl"""
+cmd = """/course/cs4700f12/ns-allinone-2.35/bin/ns ex1.tcl"""
 tcpvar = sys.argv[1]
 
 count = 0       # total number of packets
@@ -43,7 +43,7 @@ for cbr_bw in range(1, 100):
     drops = 0       # dropped packets
     bytes = 0       # total bytes transferred
 
-
+    """
     for line in f:
         lst = line.split()
 
@@ -62,6 +62,7 @@ for cbr_bw in range(1, 100):
     print "  Throughput (bytes per second): ", throughput
     print "  Droprate (percent)           : ", droprate
     print ""
+    """
 
     f.close()
 
