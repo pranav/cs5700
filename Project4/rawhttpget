@@ -1,0 +1,109 @@
+#!/usr/bin/python
+
+import sys
+import socket
+import time
+import struct
+
+hostname = "www.ccs.neu.edu"
+port = 80;
+
+"""
+
+Goals
+
+1. Work on getting TCP to work over normal sockets. "SOCK_RAW/IPPROTO_TCP"
+  - choose a valid local port
+  - manage sequence and acknowledgement numbers
+  - perform connection setup and tear-down
+  - calculate offset and checksum in each packet
+  - make sure incoming packets have valid checksums and in-order sequence numbers
+  - quit after a few minutes (assume timeout)
+  - stop and go--send one at a time, wait for ack, send next.
+  - no need to consider RTT or RTO estimation, or congestion control
+  - no need to consider some reliabilility: in-order delivery, 
+
+  - advertized window in any way we choose
+
+2. Then implement IP over a raw socket "SOCK_RAW/IPPROTO_RAW"
+  - per packet
+      - version
+      - header length
+      - total length
+      - protocol identifier
+      - checksum
+  - can use OS APIs to query for IP of remote HTTP server (to handle DNS requests)
+    as well as IP of source machine.
+  - need to check for validity of received packet headers (remote IP? checksum? 
+    protocol id?)
+
+
+
+"""
+
+# Create socket connection and return a socket
+def connect():
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  sock.connect((hostname, port))
+  return sock
+
+# Get the requested page at given host
+def get_page(host, link):
+  # print "get page", link
+  headers = """GET {link} HTTP/1.1
+Host: {host}
+
+
+  """.format(link=link, host=host)
+  reply = send(headers)
+
+  # Make sure that you receive a "200"
+
+  if reply == "":
+    return ""
+  print reply
+  reply = reply.split("\r\n\r\n")
+
+  if len(reply) > 1:
+      print reply
+      # return reply[1]
+
+  else:
+    
+      pass # return ""
+  check_status(reply[0])
+
+
+# Terminates program if error code is not 200 OK
+def check_status( reply ):
+    reply_l = reply.lower();
+
+    if "200 ok" in reply_l:
+        pass
+    else:
+        print "There was an error retrieving the page."
+
+        sys.exit()
+
+# Simple function that sends some headers
+def get_headers(host, link):
+  headers = """
+GET {link} HTTP/1.1
+Host: {host}
+
+
+
+  """.format(link=link)
+  reply = send(headers)
+  return reply
+
+# Just send a message to the server and return the reply
+def send(raw):
+  sock = connect()
+  sock.send(raw)
+  reply = sock.recv(10000)
+  sock.close()
+  return reply
+
+get_page( hostname, """/home/chiner/test.html""" )
+
