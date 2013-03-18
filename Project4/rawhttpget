@@ -41,6 +41,11 @@ Goals
 
 """
 
+src_port = 28192   # TODO: find a random port
+dest_port = 80
+
+sequence_number = 
+
 # Create socket connection and return a socket
 def connect():
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
