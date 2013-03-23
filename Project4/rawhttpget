@@ -41,13 +41,13 @@ Goals
 
 """
 
-src_port = 28192   # TODO: find a random port
+src_port = 0
 dest_port = 80
 
 
 # Create socket connection and return a socket
 def connect():
-  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
   sock.connect((hostname, port))
   return sock
 
@@ -109,5 +109,5 @@ def send(raw):
   sock.close()
   return reply
 
-get_page( hostname, """/home/chiner/test.html""" )
+get_page(hostname, "/home/chiner/test.html")
 

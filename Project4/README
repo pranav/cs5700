@@ -1,0 +1,31 @@
+High level overview for Raw Sockets
+- Pranav Gandhi (hyfi@ccs.neu.edu)
+- Eric Chin (chiner@ccs.neu.edu)
+
+USAGE:
+./rawhttpget http://ccs.neu.edu
+
+1. We first get the first argument of this command.
+2. Then we construct an HTTP GET request with argv[1] as the vhost|path
+3. We then do shoe.socket() to get a new socket
+4. We then do shoe.send(GET_REQUEST) with our GET request
+5. We then do shoe.recv() to receive our reply
+6. We print the output of shoe.recv()
+
+shoe.socket():
+  1. This returns a socket from the OS, socket.socket(AF_INET, SOCK_RAW, IPPROTO_RAW)
+
+shoe.send(GET_REQUEST):
+  1. do_handshake():
+    Construct SYN
+    Send SYN packet
+    Receive SYN-ACK
+    Send ACK
+  2. Send GET_REQUEST:
+    Construct TCP Packet (SYN)
+    Send TCP Packet
+    Receive ACK
+    Receive Data
+
+On every send, generate ip header and add to tcp packet
+

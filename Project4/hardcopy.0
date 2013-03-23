@@ -1,0 +1,49 @@
+                                                                              |#!/usr/bin/env python
+"""                                                                           |
+  TCP Variant known as Shoe                                                   |from tcp import *
+  Wraps over Socket class                                                     |
+  Redefines connect, send, recv, close                                        |s = Shoe()
+"""                                                                           |s.socket()
+                                                                              |s.connect(('tripadvisor.com', 80))
+import socket, random                                                         |~
+from struct import *                                                          |~
+                                                                              |~
+class Shoe:                                                                   |~
+                                                                              |~
+  def socket(self):                                                           |~
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_|~
+TCP)                                                                          |~
+                                                                              |~
+                                                                              |~
+  def connect(self, hostport):                                                |~
+    self.destination_hostname = hostport[0]                                   |~
+    self.destination_port = hostport[1]                                       |~
+    self.destination_ip = self.get_destination_ip()                           |~
+    self.destination_ip_hex = socket.inet_aton(self.destination_ip)           |~
+    self.local_ip = self.get_local_ip()                                       |~
+    self.local_ip_hex = socket.inet_aton(self.local_ip)                       |~
+    self.local_port = 0                                                       |~
+                                                                              |~
+    self.send_inital_syn()                                                    |~
+    self.read_synack()                                                        |~
+    self.send_ack()                                                           |~
+                                                                              |~
+  def get_local_ip(self):                                                     |~
+    return socket.gethostbyname(socket.gethostname())                         |~
+                                                                              |~
+  def get_destination_ip(self):                                               |~
+    return socket.gethostbyname(self.destination_hostname)                    |~
+                                                                              |~
+  def send(self):                                                             |~
+    print "SEND"                                                              |~
+                                                                              |~
+  def recv(self):                                                             |~
+    print "RECV"                                                              |~
+                                                                              |~
+  def close(self):                                                            |~
+    print "CLOSE"                                                             |~
+                                                                              |~
+  def send_inital_syn(self):                                                  |~
+    flags = { 'syn': 1 }                                                      |~
+tcp.py                                                      19,5           Top run.py                                                                                           1,11           All
+
