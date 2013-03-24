@@ -29,10 +29,14 @@ class Shoe:
     self.sock.bind(('0.0.0.0', self.local_port))
     self.local_port = self.sock.getsockname()[1]
 
+    print "SENDING INITIAL SYN"
     self.send_inital_syn()
-    self.read_synack()
-    #self.send_ack()
-
+    print "READING SYNACK"
+    synack = self.read_packet()
+    print "SENDING ACK"
+    self.send_ack(synack)
+    print "READING NEXT PACKET?"
+    self.read_packet()
 
   # Get the local machines IP address
   def get_local_ip(self):
@@ -71,38 +75,45 @@ class Shoe:
     self.sock.send(packet.generate_packet())
 
 
-  # Read the synack from the server
+  # Read the synack from the server and return a tuple containing seq num and ack num
   # '!HHLLBBH'
-  def read_synack(self):
+  def read_packet(self):
     (rawpacket, port) = self.sock.recvfrom(4096)
-    #packet = unpack('!BBHHHBBH4s4sHH4s4s4sHH4s', rawpacket)
-    source_port = unpack('!H',rawpacket[0:2])[0]
-    destination_port = unpack('!H',rawpacket[3:5])[0]
-    sequence_num = unpack('!I',rawpacket[6:10])[0]
-    ack_num = unpack('!I', rawpacket[11:15])[0]
-    #(offset, reserved, ecn) =  unpack('!4s4s?', rawpacket[16])
-    print len(rawpacket[17])
-    flags = self.parse_flags(rawpacket[17])
-
-    print "Source Port: ", source_port
-    print "Destination Port: ", destination_port
-    print "Sequence: ",  sequence_num
-    print "Ack: ", ack_num
-    print "Flags: ", flags
+    packet = unpack('!HHLLBBHHH', rawpacket[20:41])
+    source_port = packet[0]
+    destination_port = packet[1]
+    seq_num = packet[2]
+    ack_num = packet[3]
+    flags = self.parse_flags(packet[5])
+    print flags
+    window_size = packet[6]
+    checksum = packet[7]
+    urg_ptr = packet[8]
 
   # Parses the flag octet from a TCP header
   def parse_flags(self,rawoctet):
-    rawoctet = ord(rawoctet)
     return {
-        'cwr': (rawoctet&1 != 0),
-        'ece': (rawoctet&2 != 0),
-        'urg': (rawoctet&3 != 0),
-        'ack': (rawoctet&4 != 0),
-        'psh': (rawoctet&5 != 0),
-        'rst': (rawoctet&6 != 0),
-        'syn': (rawoctet&7 != 0),
-        'fin': (rawoctet&8 != 0)
+        'cwr': (rawoctet >> 1 != 0),
+        'urg': (rawoctet >> 2 != 0),
+        'ece': (rawoctet >> 3 != 0),
+        'ack': (rawoctet >> 4 != 0),
+        'psh': (rawoctet >> 5 != 0),
+        'rst': (rawoctet >> 6 != 0),
+        'syn': (rawoctet >> 7 != 0),
+        'fin': (rawoctet >> 8 != 0)
     }
+
+
+  # Send the ack after the synack
+  def send_ack(self,t):
+    flags = { 'ack': 1 }
+    packet = TCP(source_ip = self.local_ip_hex, destination_ip = self.destination_ip_hex, data='', flags = flags)
+    packet.sequence_num = t[0]
+    packet.ack_seq = t[1]
+    self.sock.send(packet.generate_packet())
+    print 'SENT: SEQ: ', packet.sequence, "ACK: ", packet.ack_seq
+    print 'sent packet'
+
 
 
 
@@ -133,6 +144,9 @@ class TCP:
     self.psh = 0
     self.ack = 0
     self.urg = 0
+    self.ece = 0
+    self.cwr = 0
+    self.ns = 0
     # size of the receive window (in bytes) that sender of this segment is willing to receive
     self.window_size = socket.htons(1500)
     # Checksum
@@ -156,7 +170,7 @@ class TCP:
     try: self.fin = flags['fin']
     except: self.fin = 0
     # Compact the flags
-    self.flags = self.fin + (self.syn << 1) + (self.rst << 2) + (self.psh << 3) + (self.ack << 4) + (self.urg << 5)
+    self.flags = self.fin + (self.syn << 1) + (self.rst << 2) + (self.psh << 3) + (self.ack << 4) + (self.urg << 5) + (self.ece << 6) + (self.cwr << 7) + (self.ns << 8)
 
 
   # Takes all the necessary variables and pack them together into the header
@@ -190,8 +204,6 @@ class TCP:
   # Generate a random seq number
   def random_sequence(self):
     return random.randint(100, 1000000)
-
-
 
 
 
