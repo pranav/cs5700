@@ -8,12 +8,16 @@
 import socket, random
 from struct import *
 
+# Shoe class represents a socket
 class Shoe:
 
+
+  # Returns a new socket using raw socket
   def socket(self):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
 
 
+  # The initial connection that will do the 3 way handshake
   def connect(self, hostport):
     self.destination_hostname = hostport[0]
     self.destination_port = hostport[1]
@@ -27,44 +31,55 @@ class Shoe:
     #self.read_synack()
     #self.send_ack()
 
+
+  # Get the local machines IP address
   def get_local_ip(self):
-    a = socket.gethostbyname(socket.gethostname())
-    print a
-
-    return a
+    return socket.gethostbyname(socket.gethostname())
 
 
+  # Get the destination's IP address
   def get_destination_ip(self):
-    a = socket.gethostbyname(self.destination_hostname)
-    print a
+    return socket.gethostbyname(self.destination_hostname)
 
-    return a
 
+  # Send a packet to the destination
   def send(self):
     print "SEND"
 
+
+  # Receive a packet from the destination
   def recv(self):
     print "RECV"
 
+
+  # Close this connection
   def close(self):
-    print "CLOSE"
+    self.sock.close()
 
+
+  # Send the initial SYN packet
   def send_inital_syn(self):
-    print "send initial syn"
+    # Flags for the packet
     flags = { 'syn': 1 }
+    # The packet itself
     packet = TCP(source_ip = self.local_ip_hex, destination_ip = self.destination_ip_hex, data='', flags = flags)
-    
-    print packet.generate_packet()
-
+    # Socket library to send the packet
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
     self.sock.connect((self.destination_ip, self.destination_port))
     self.sock.send(packet.generate_packet())
 
-class TCP:
-  def __init__(self, source_ip, destination_ip, data, flags):
-    # self.destination_ip = ''
-    # self.source_ip = socket.gethostbyname(socket.gethostname())
 
+
+###############################################################################
+############## TCP CLASS ######################################################
+###############################################################################
+
+# Represents a tcp packet
+class TCP:
+
+  # Constructor.
+  # a = TCP(source_ip, destination_ip, data, flags)
+  def __init__(self, source_ip, destination_ip, data, flags):
     # Source port (0 => open port)
     self.source_port = 0
     # Destination port (always 80 for HTTP)
@@ -76,8 +91,6 @@ class TCP:
     # Data offset (size of TCP header in 32-bit words)
     self.data_offset = 5
     # Flags
-    
-    
     self.fin = 0
     self.syn = 0
     self.rst = 0
@@ -91,56 +104,54 @@ class TCP:
     # offset from sequence number indicating last urgent data byte
     self.urg_ptr = 0
     self.offset_res = (self.data_offset << 4) + 0
-    self.data = 'Hello, how are you'
+    self.data = ''
     self.protocol = socket.IPPROTO_TCP
-
+    # Overrides
     self.destination_ip = destination_ip
     self.source_ip = source_ip
     self.data = data
-
+    # Try to set the syn flag
     try: self.syn = flags['syn']
     except: self.syn = 0
-
+    # Try to set the ack flag
     try: self.ack = flags['ack']
     except: self.ack = 0
-
+    # Try to set the fin flag
     try: self.fin = flags['fin']
     except: self.fin = 0
-
+    # Compact the flags
     self.flags = self.fin + (self.syn << 1) + (self.rst << 2) + (self.psh << 3) + (self.ack << 4) + (self.urg << 5)
 
+
+  # Takes all the necessary variables and pack them together into the header
   def generate_header(self):
     return pack('!HHLLBBHHH', self.source_port, self.destination_port, self.sequence, self.ack_seq, self.offset_res, self.flags, self.window_size, self.checksum, self.urg_ptr)
 
+
+  # Get the checksum of a packet
   def do_checksum(self, psh):
     result = 0
-
     for i in range( 0, len(psh), 2):
-	a = ord(psh[i]) + (ord(psh[i+1]) << 8)
-	result = result + a
-
+      a = ord(psh[i]) + (ord(psh[i+1]) << 8)
+      result = result + a
     result = (result >> 16) + (result & 0xffff);
     result = result + (result >> 16);
-
     result = ~result & 0xffff
-
     return result
 
+
+  # Generate a packet
   def generate_packet(self):
     tcp_header = pack('!HHLLBBHHH', self.source_port, self.destination_port, self.sequence, self.ack_seq, self.offset_res, self.flags, self.window_size, self.checksum, self.urg_ptr)
-
     tcp_length = len(tcp_header) + len(self.data)
-
     psh = pack('!4s4sBBH' , self.source_ip, self.destination_ip, 0, self.protocol, tcp_length);
     psh = psh + tcp_header + self.data
-    
     cksum = self.do_checksum(psh)
-
     tcp_header = pack('!HHLLBBH' , self.source_port, self.destination_port, self.sequence, self.ack_seq, self.offset_res, self.flags,  self.window_size) + pack('H' , cksum) + pack('!H' , self.urg_ptr)
-
     return tcp_header + self.data
 
 
+  # Generate a random seq number
   def random_sequence(self):
     return random.randint(100, 1000000)
 

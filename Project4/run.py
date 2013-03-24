@@ -4,4 +4,4 @@ from tcp import *
 
 s = Shoe()
 s.socket()
-s.connect(('web.hybridfire.net', 80))
+s.connect(('ccs.neu.edu', 80))
