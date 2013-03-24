@@ -36,6 +36,8 @@ class Shoe:
     print "SENDING ACK"
     self.send_ack(synack[0])
     print "READING NEXT PACKET?"
+    ack = self.read_packet()
+    self.send_ack(ack[0]-1)
     self.read_packet()
 
   # Get the local machines IP address
@@ -148,7 +150,7 @@ class TCP:
     self.cwr = 0
     self.ns = 0
     # size of the receive window (in bytes) that sender of this segment is willing to receive
-    self.window_size = socket.htons(1500)
+    self.window_size = 1500
     # Checksum
     self.checksum = 0
     # offset from sequence number indicating last urgent data byte
