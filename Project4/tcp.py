@@ -34,7 +34,7 @@ class Shoe:
     print "READING SYNACK"
     synack = self.read_packet()
     print "SENDING ACK"
-    self.send_ack(synack)
+    self.send_ack(synack[0])
     print "READING NEXT PACKET?"
     self.read_packet()
 
@@ -79,7 +79,7 @@ class Shoe:
   # '!HHLLBBH'
   def read_packet(self):
     (rawpacket, port) = self.sock.recvfrom(4096)
-    packet = unpack('!HHLLBBHHH', rawpacket[20:41])
+    packet = unpack('!HHLLBBHHH', rawpacket[20:40])
     source_port = packet[0]
     destination_port = packet[1]
     seq_num = packet[2]
@@ -89,6 +89,7 @@ class Shoe:
     window_size = packet[6]
     checksum = packet[7]
     urg_ptr = packet[8]
+    return (seq_num, ack_num)
 
   # Parses the flag octet from a TCP header
   def parse_flags(self,rawoctet):
@@ -108,8 +109,7 @@ class Shoe:
   def send_ack(self,t):
     flags = { 'ack': 1 }
     packet = TCP(source_ip = self.local_ip_hex, destination_ip = self.destination_ip_hex, data='', flags = flags)
-    packet.sequence_num = t[0]
-    packet.ack_seq = t[1]
+    packet.ack_seq = t+1
     self.sock.send(packet.generate_packet())
     print 'SENT: SEQ: ', packet.sequence, "ACK: ", packet.ack_seq
     print 'sent packet'
