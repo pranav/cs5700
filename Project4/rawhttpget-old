@@ -1,11 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-from tcp import *
 import sys
 import socket
 import time
 import struct
 
+# import tcp
+
+hostname = "www.ccs.neu.edu"
+port = 80;
 
 """
 
@@ -35,17 +38,20 @@ Goals
     as well as IP of source machine.
   - need to check for validity of received packet headers (remote IP? checksum? 
     protocol id?)
+
+
+
 """
 
 src_port = 0
 dest_port = 80
 
-hostname = sys.argv[1].split('/')[0]
-if len(sys.argv[1].split('/')[1:]) > 0:
-  path = '/' + '/'.join(sys.argv[1].split('/')[1:])
-else:
-  path = "/index.html"
 
+# Create socket connection and return a socket
+def connect():
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+  sock.connect((hostname, port))
+  return sock
 
 # Get the requested page at given host
 def get_page(host, link):
@@ -57,13 +63,8 @@ Host: {host}
   """.format(link=link, host=host)
   reply = send(headers)
 
-  if reply:
-    print reply[4]
-  else:
-    print "no data"
-  # TODO: to get this to work, need to RECV data and return it via recv
   # Make sure that you receive a "200"
-  """
+
   if reply == "":
     return ""
   print reply
@@ -74,9 +75,10 @@ Host: {host}
       # return reply[1]
 
   else:
+    
       pass # return ""
   check_status(reply[0])
-  """
+
 
 # Terminates program if error code is not 200 OK
 def check_status( reply ):
@@ -103,14 +105,11 @@ Host: {host}
 
 # Just send a message to the server and return the reply
 def send(raw):
-  s = Shoe()
-  s.socket()
-  s.connect((hostname, 80))
-
-  s.send(raw)
-  reply = s.recv()
+  sock = connect()
+  sock.send(raw)
+  reply = sock.recv(10000)
+  sock.close()
   return reply
 
-get_page(hostname, path)
-
+get_page(hostname, "/home/chiner/test.html")
 

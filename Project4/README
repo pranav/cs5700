@@ -15,17 +15,18 @@ USAGE:
 shoe.socket():
   1. This returns a socket from the OS, socket.socket(AF_INET, SOCK_RAW, IPPROTO_RAW)
 
-shoe.send(GET_REQUEST):
-  1. do_handshake():
-    Construct SYN
-    Send SYN packet
-    Receive SYN-ACK
-    Send ACK
-  2. Send GET_REQUEST:
-    Construct TCP Packet (SYN)
-    Send TCP Packet
-    Receive ACK
-    Receive Data
+shoe.connect():
+  This does the 3 way handshake between the server and client
 
-On every send, generate ip header and add to tcp packet
+shoe.send():
+  This sends a psh/ack packet containing a simple get request to the server
 
+shoe.recv():
+  This does a socket.read() and gets the data from the server
+
+We basically mirrored a small subset of the python socket library to fit our requirements
+
+
+We faced a large challenge: We could not complete the TCP handshake, causing a lot of issues on our end.
+Most of the code for the IP portion of the assignment is there but we could never do it due to the issues with TCP.
+At least we are generating the bare minumum HTTP get request to get the web page.
