@@ -3,30 +3,64 @@ High level overview for Raw Sockets
 - Eric Chin (chiner@ccs.neu.edu)
 
 USAGE:
-./rawhttpget http://ccs.neu.edu
+./rawhttpget www.ccs.neu.edu/index.html
 
-1. We first get the first argument of this command.
-2. Then we construct an HTTP GET request with argv[1] as the vhost|path
-3. We then do shoe.socket() to get a new socket
-4. We then do shoe.send(GET_REQUEST) with our GET request
-5. We then do shoe.recv() to receive our reply
-6. We print the output of shoe.recv()
+Our overall design scheme for this project was to mirror the socket api as closely as possible. This means implementing the following functions: socket(), connect(), send(), recv(). We did this by creating a wrapper class over socket called Shoe.
 
-shoe.socket():
-  1. This returns a socket from the OS, socket.socket(AF_INET, SOCK_RAW, IPPROTO_RAW)
+=======================================================================================
 
-shoe.connect():
-  This does the 3 way handshake between the server and client
+Shoe has several main functions for operation:
 
-shoe.send():
-  This sends a psh/ack packet containing a simple get request to the server
+socket():
+  returns a socket using socket.socket(AF_INET, SOCK_RAW, IPPROTO_RAW)
 
-shoe.recv():
-  This does a socket.read() and gets the data from the server
+connect():
+  This function performs a TCP 3 way handshake and also binds a local port to listen on for incoming packets, typically port 3289.
 
-We basically mirrored a small subset of the python socket library to fit our requirements
+send():
+  This function will send data to the server
+
+recv():
+  This function will run a socket.recvfrom on the socket that is listening on port 3289.
+
+========================================================================================
+
+Three way handshake:
+  We first send a SYN packet to the server, then wait for a SYNACK. We parse the synack to get the seq/ack numbers and send back an ACK with the values formatted correctly. All our packets send a timestamp/echo value.
 
 
-We faced a large challenge: We could not complete the TCP handshake, causing a lot of issues on our end.
-Most of the code for the IP portion of the assignment is there but we could never do it due to the issues with TCP.
-At least we are generating the bare minumum HTTP get request to get the web page.
+GET request:
+  After the handshake, we send out a PSH/ACK packet containing the GET request for HTTP. This is where we start having trouble, the server sends back RST packets consistently. We tried to follow the model that CURL uses by following its progress on tcpdump.
+
+
+========================================================================================
+
+class IP:
+
+generate_header():
+  This function combines all the header fields and packs them together to produce a binary header for sending through the internet
+
+The IP class has many fields that can be set. We start off by filling in the source ip and the destination ip in the constructor. We have a function "generate_header()" that packs all the fields together and produces binary to be prepended to the TCP packet and socket.sendto().
+
+========================================================================================
+
+class TCP:
+  This class creates a tcp packet to be used by Shoe. It has several functions that do checksums and generate the packet based on the multitude of fields, flags, and options that are available to tcp. 
+
+========================================================================================
+
+Difficulties with the assignment:
+
+We started off by using the built in IPPROTO_TCP and SOCK_RAW so that we could focus on TCP. It took us until 2 days after the due date to get the handshake and psh requests working properly. It turned out we were closing the socket BEFORE we were receiving data so the server kept sending RST packets. We tried many fixes throughout the process and it was only an hour before the deadline from our last slip day before we realized what had happened.
+
+We are *still* having difficulty with acking every psh packet for some reason, our loop must not be constructed properly. With this difficulty, we were not able to combine data from the incoming packets so we could not write to the file.
+
+We found that for some reason, our application stopped running before a remote server could send us a packet with the http/html data.
+
+With 30 minutes left in the assignment, we realized we did not have time to do the portion of the assignment that would require us to combine the data from the packets so we wrote the basic function 'save_to_file' that would allow us to do that.
+
+While we debugged, we implemented IP pretty easily.
+
+We implemented HTTP well, IP well, and most of TCP before running out of time, and had some stellar documentation :)
+
+In addition, we added a special feature to our script--run with the '-w' flag and the functionality is completely available.

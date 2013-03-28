@@ -6,10 +6,12 @@
 """
 
 import socket, random, time
+
 from struct import *
+from ip import *
 
 def get_ts():
-  return int("".join(repr(time.time())[-12:-1].split(".")))
+  return int("".join(repr(time.time())[-11:-1].split(".")))
 
 
 
@@ -23,6 +25,7 @@ class Shoe:
   # Returns a new socket using raw socket
   def socket(self):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    self.recv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
   # Generate a random seq number
@@ -37,12 +40,19 @@ class Shoe:
     self.destination_ip_hex = socket.inet_aton(self.destination_ip)
     self.local_ip = self.get_local_ip()
     self.local_ip_hex = socket.inet_aton(self.local_ip)
-    self.local_port = 0
-    self.sock.bind(('0.0.0.0', self.local_port))
-    self.local_port = self.sock.getsockname()[1]
+    self.local_port = 3233
+
     self.data = ""
     self.sequence = self.random_sequence()
 
+    self.recv_sock = socket.socket( socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP )
+    self.recv_sock.bind(('0.0.0.0', self.local_port))
+    self.recv_sock.setblocking(1)
+
+    self.do_handshake()
+
+
+  def do_handshake(self):
     self.send_initial_syn()
     self.read_packet()
     self.send_ack()
@@ -55,24 +65,22 @@ class Shoe:
     flags = { 'syn': 1 }
 
     # The packet itself
-    packet = TCP(self.local_ip_hex, self.destination_ip_hex, flags, self.sequence)
+    packet = TCP(self.local_ip_hex, self.local_port, self.destination_ip_hex, flags, self.sequence)
     self.last_reply_seq = packet.sequence
     
     # Socket library to send the packet
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-    self.sock.connect((self.destination_ip, self.destination_port))
-    self.sock.send(packet.generate_syn_packet())
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    ip = IP(self.local_ip, self.destination_ip)
+    self.sock.sendto(ip.generate_header() + packet.generate_syn_packet(), (self.destination_ip, 0))
 
-    # ack = self.read_packet()
-    # self.send_ack(ack[0]-1, old_ts = ack[2])
-    # self.read_packet()
 
   # Read the synack from the server and return a tuple containing seq num and ack num
   # '!HHLLBBH'
   # RETURNS: data
   # Side effects: sets self.last_reply_seq, last_reply_ack, last_tsval, last_tsecr
   def read_packet(self):
-    (rawpacket, port) = self.sock.recvfrom(4096)
+    #time.sleep(20)
+    (rawpacket, addy) = self.recv_sock.recvfrom(4096)
     packet = unpack('!HHLLBBHHH', rawpacket[20:40])
     source_port = packet[0]
     destination_port = packet[1]
@@ -84,37 +92,40 @@ class Shoe:
     checksum = packet[7]
     urg_ptr = packet[8]
 
-    # Timestamp
-    ts = self.get_tsval( rawpacket, data_offset, 40 )
-
-    self.last_reply_seq = packet[2]
-    self.last_reply_ack = packet[3]
-
-    if ts and len(ts) == 2:
-      self.last_tsval = ts[0]
-      self.last_tsecr = ts[1]
-    elif ts and len(ts) == 1:
-      self.last_tsval = ts[0]
-      self.last_tsecr = 0
+    if flags['rst'] == 1:
+      self.do_handshake()
+      self.data = ""
     else:
-      self.last_tsval = 0
-      self.last_tsecr = 0
+      # Timestamp
+      ts = self.get_tsval( rawpacket, data_offset, 40 )
 
-    # Data
-    data = ""
-    for i in range( len(rawpacket) - (40 + data_offset)):
-      data = data + rawpacket[i + 40 + data_offset]
+      self.last_reply_seq = packet[2]
+      self.last_reply_ack = packet[3]
 
-    self.data = data
-    return data
+      if ts and len(ts) == 2:
+        self.last_tsval = ts[0]
+        self.last_tsecr = ts[1]
+      elif ts and len(ts) == 1:
+        self.last_tsval = ts[0]
+        self.last_tsecr = 0
+      else:
+        self.last_tsval = 0
+        self.last_tsecr = 0
+
+
+      # Data
+      data = ""
+      for i in range( len(rawpacket) - (40 + data_offset)):
+        data = data + rawpacket[i + 40 + data_offset]
+
+      self.data = data
 
   # Parses the TSVal from the raw packet
   def get_tsval(self, rawpacket, data_offset, i):
     if i < len(rawpacket):
       kind = unpack('!B', rawpacket[i])[0]
       if kind == 8:
-        (kind, length, timestamp, echo) = unpack('!BBLL', rawpacket[i:i+12])
-        # print "TIMESTAMP: ", timestamp, " ECHO: ", echo
+        (kind, length, timestamp, echo) = unpack('!BBLL', rawpacket[i:i+10])
         return (timestamp, echo)
       else:
         return self.get_tsval(rawpacket, data_offset, i+1)
@@ -133,16 +144,31 @@ class Shoe:
         'fin': (rawoctet >> 8 != 0)
     }
 
-
   # Send the ack after the synack
   def send_ack(self):
     flags = { 'ack': 1 }
-    packet = TCP(self.local_ip_hex, self.destination_ip_hex, flags, self.sequence, old_ts = self.last_tsval)
+    packet = TCP(self.local_ip_hex, self.local_port, self.destination_ip_hex, flags, self.sequence, old_ts = self.last_tsval)
     packet.TSval = self.get_ts()
-    packet.ack_seq = self.last_reply_seq + 1
+    packet.ack_seq = self.last_reply_seq
     packet.sequence = self.last_reply_ack
 
-    self.sock.send(packet.generate_packet())
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    ip = IP(self.local_ip, self.destination_ip)
+    self.sock.sendto(ip.generate_header() + packet.generate_syn_packet(), (self.destination_ip, 0))
+
+
+
+  # Send the ack after the synack
+  def rest_ack(self):
+    flags = { 'ack': 1 }
+    packet = TCP(self.local_ip_hex, self.local_port, self.destination_ip_hex, flags, self.sequence, old_ts = self.last_tsval)
+    packet.TSval = self.get_ts()
+    packet.ack_seq = self.last_reply_seq
+    packet.sequence = self.last_reply_ack
+
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    ip = IP(self.local_ip, self.destination_ip)
+    self.sock.sendto(ip.generate_header() + packet.generate_syn_packet(), (self.destination_ip, 0))
 
 
   # Get the local machines IP address
@@ -156,7 +182,6 @@ class Shoe:
 
   # Receive a packet from the destination
   def recv(self):
-    # print "RECV"
     return "RECV: " + self.data
 
 
@@ -166,21 +191,22 @@ class Shoe:
 
   # Send a packet to the destination
   def send(self, data):
-    print "SEND"
     flags = { 'psh': 1, 'ack': 1 }
     #flags = { 'psh': 1 }
-    packet = TCP( self.local_ip_hex, self.destination_ip_hex, flags, self.sequence, data=data)
-    # print "LAST_PACKET: ", self.last_packet
+    packet = TCP( self.local_ip_hex, self.local_port, self.destination_ip_hex, flags, self.sequence, data=data)
     packet.TSval = self.get_ts()
     packet.TSecr = self.last_tsval
     packet.ack_seq = self.last_reply_seq + len(self.data)
     packet.sequence = self.last_reply_ack
-    self.sock.send(packet.generate_packet())
-    ack = self.read_packet()
-    #xself.data = self.data + ack[4]
-    #self.send_ack(old_ts = ack[2])
-    #if count < 5:  # todo: we need to continue reading
-    #  self.send( "", count + 1)
+
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+    ip = IP(self.local_ip, self.destination_ip)
+    self.sock.sendto(ip.generate_header() + packet.generate_packet(), (self.destination_ip, 0))
+
+    self.read_packet()
+    self.rest_ack()
+    
+
 
 
 
@@ -196,9 +222,9 @@ class TCP:
 
   # Constructor.
   # a = TCP(source_ip, destination_ip, data, flags)
-  def __init__(self, source_ip, destination_ip, flags, sequence, data = '' ,old_ts = 0):
+  def __init__(self, source_ip, source_port, destination_ip, flags, sequence, data = '' ,old_ts = 0):
     # Source port (0 => open port)
-    self.source_port = 0
+    self.source_port = source_port
     # Destination port (always 80 for HTTP)
     self.destination_port = 80
     # Sequence number (start at random, need to increment later on)
@@ -218,7 +244,7 @@ class TCP:
     self.cwr = 0
     self.ns = 0
     # size of the receive window (in bytes) that sender of this segment is willing to receive
-    self.window_size = 1
+    self.window_size = 1024
     # Checksum
     self.checksum = 0
     # offset from sequence number indicating last urgent data byte

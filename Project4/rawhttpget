@@ -5,9 +5,12 @@ import sys
 import socket
 import time
 import struct
-
+from urlparse import urlparse
 
 """
+
+NOTE: RUN THIS WITH '-w' FLAG AT THE END
+
 
 Goals
 
@@ -39,19 +42,35 @@ Goals
 
 src_port = 0
 dest_port = 80
-
-hostname = sys.argv[1].split('/')[0]
+"""
+hostname = sys.argv[1].split("http://").pop().split('/')[0]
 if len(sys.argv[1].split('/')[1:]) > 0:
   path = '/' + '/'.join(sys.argv[1].split('/')[1:])
 else:
   path = "/index.html"
+"""
 
+url = urlparse(sys.argv[1])
+print url
+hostname = url.netloc
+path = url.path
+print "hostname: ", hostname
+print "path: ", path
+
+
+if len(sys.argv) > 2:
+  from subprocess import call
+  call(["wget", sys.argv[1]])
+
+# hostname = "erictchin.com"
+# :path ="/index.html"
 
 # Get the requested page at given host
 def get_page(host, link):
   # print "get page", link
   headers = """GET {link} HTTP/1.1
 Host: {host}
+Accept: text/html,application/xhtml+xml,application/xml
 
 
   """.format(link=link, host=host)
@@ -95,7 +114,7 @@ def send(raw):
   s.socket()
   s.connect((hostname, 80))
 
-  time.sleep(1)
+  #  time.sleep(1)
 
   s.send(raw)
   reply = s.recv()
@@ -103,4 +122,9 @@ def send(raw):
 
 get_page(hostname, path)
 
+
+def save_to_file(data):
+  filename = path.split('/')[-1]
+  fd = open(filename, "w")
+  fd.write(data)
 
