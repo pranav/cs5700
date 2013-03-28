@@ -1,3 +1,3 @@
 #!/bin/sh
 
-tcpdump port 80 -nnS -s0
+tcpdump port 80 -vv -s0 -nS

@@ -58,7 +58,7 @@ Host: {host}
   reply = send(headers)
 
   if reply:
-    print reply[4]
+    print reply
   else:
     print "no data"
   # TODO: to get this to work, need to RECV data and return it via recv
@@ -89,23 +89,13 @@ def check_status( reply ):
 
         sys.exit()
 
-# Simple function that sends some headers
-def get_headers(host, link):
-  headers = """
-GET {link} HTTP/1.1
-Host: {host}
-
-
-
-  """.format(link=link)
-  reply = send(headers)
-  return reply
-
 # Just send a message to the server and return the reply
 def send(raw):
   s = Shoe()
   s.socket()
   s.connect((hostname, 80))
+
+  time.sleep(1)
 
   s.send(raw)
   reply = s.recv()
