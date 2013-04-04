@@ -43,12 +43,7 @@ public class PeerCoordinator implements PeerListener
   // final static int MAX_DOWNLOADERS = MAX_CONNECTIONS;
   // int downloaders = 0;
 
-  //> ERIC: we need to lie about uploaded
   private long uploaded;
-
-  //> ERIC: I think we need to lie about downloaded too
-  //> maybe we should keep track of what we download from who
-  //> and pretend like they're the only person we're connected to
   private long downloaded;
 
   // synchronize on this when changing peers or downloaders
@@ -117,7 +112,6 @@ public class PeerCoordinator implements PeerListener
   /**
    * Returns the total number of uploaded bytes of all peers.
    */
-  //> ERIC: here!
   public long getUploaded()
   {
     return uploaded;
@@ -126,7 +120,6 @@ public class PeerCoordinator implements PeerListener
   /**
    * Returns the total number of downloaded bytes of all peers.
    */
-  //> ERIC: here!
   public long getDownloaded()
   {
     return downloaded;
@@ -145,7 +138,6 @@ public class PeerCoordinator implements PeerListener
       }
   }
 
-  //> ERIC: why would we halt a peer?
   public void halt()
   {
     halted = true;
@@ -202,54 +194,49 @@ public class PeerCoordinator implements PeerListener
     Iterator it = peers.iterator();
     while (it.hasNext())
       if (pid.sameID(((Peer)it.next()).getPeerID()))
-      return true;
+	return true;
     return false;
   }
 
-  //> ERIC: we could try to connect to as many as possible to download
-  //> so we could increase MAX_CONNECTIONS?
   public void addPeer(final Peer peer)
   {
     if (halted)
-    {
-        peer.disconnect(false);
-        return;
-    }
+      {
+	peer.disconnect(false);
+	return;
+      }
 
     boolean need_more;
     synchronized(peers)
-    {
-        need_more = !peer.isConnected() && peers.size() < MAX_CONNECTIONS;
-    }
+      {
+	need_more = !peer.isConnected() && peers.size() < MAX_CONNECTIONS;
+      }
 
     if (need_more)
-    {
-        // Run the peer with us as listener and the current bitfield.
-        final PeerListener listener = this;
-        final BitField bitfield = storage.getBitField();
-        Runnable r = new Runnable()
-        {
-            public void run()
-            {
-                peer.runConnection(listener, bitfield);
-            }
-        };
-        String threadName = peer.toString();
-        new Thread(r, threadName).start();
-    }
+      {
+	// Run the peer with us as listener and the current bitfield.
+	final PeerListener listener = this;
+	final BitField bitfield = storage.getBitField();
+	Runnable r = new Runnable()
+	  {
+	    public void run()
+	    {
+	      peer.runConnection(listener, bitfield);
+	    }
+	  };
+	String threadName = peer.toString();
+	new Thread(r, threadName).start();
+      }
     else
-    if (Snark.debug >= Snark.INFO)
-    {
-        if (peer.isConnected())
-            Snark.debug("Add peer already connected: " + peer, Snark.INFO);
-        else
-            Snark.debug("MAX_CONNECTIONS = " + MAX_CONNECTIONS
-                        + " not accepting extra peer: " + peer, Snark.INFO);
-    }
+      if (Snark.debug >= Snark.INFO)
+	if (peer.isConnected())
+	  Snark.debug("Add peer already connected: " + peer, Snark.INFO);
+	else
+	  Snark.debug("MAX_CONNECTIONS = " + MAX_CONNECTIONS
+		      + " not accepting extra peer: " + peer, Snark.INFO);
   }
 
 
-  //> ERIC: is unchoking so we upload more to them or so they upload more to us?
   // (Optimistically) unchoke. Should be called with peers synchronized
   void unchokePeer()
   {
@@ -259,36 +246,36 @@ public class PeerCoordinator implements PeerListener
     List interested = new LinkedList();
     Iterator it = peers.iterator();
     while (it.hasNext())
-    {
-        Peer peer = (Peer)it.next();
-        boolean remove = false;
-        if (uploaders < MAX_UPLOADERS
-                      && peer.isChoking()
-                      && peer.isInterested())
-        {
-            if (!peer.isChoked())
-                interested.add(0, peer);
-            else
-                interested.add(peer);
-        }
-    }
+      {
+	Peer peer = (Peer)it.next();
+	boolean remove = false;
+	if (uploaders < MAX_UPLOADERS
+	    && peer.isChoking()
+	    && peer.isInterested())
+	  {
+	    if (!peer.isChoked())
+	      interested.add(0, peer);
+	    else
+	      interested.add(peer);
+	  }
+      }
 
     while (uploaders < MAX_UPLOADERS && interested.size() > 0)
-    {
-        Peer peer = (Peer)interested.remove(0);
-        if (Snark.debug >= Snark.INFO)
-            Snark.debug("Unchoke: " + peer, Snark.INFO);
-        peer.setChoking(false);
-        uploaders++;
-        // Put peer back at the end of the list.
-        peers.remove(peer);
-        peers.add(peer);
-    }
+      {
+	Peer peer = (Peer)interested.remove(0);
+	if (Snark.debug >= Snark.INFO)
+	  Snark.debug("Unchoke: " + peer, Snark.INFO);
+	peer.setChoking(false);
+	uploaders++;
+	// Put peer back at the end of the list.
+	peers.remove(peer);
+	peers.add(peer);
+      }
   }
 
   public byte[] getBitMap()
   {
-      return storage.getBitField().getFieldBytes();
+    return storage.getBitField().getFieldBytes();
   }
 
   /**
@@ -296,12 +283,12 @@ public class PeerCoordinator implements PeerListener
    */
   public boolean gotHave(Peer peer, int piece)
   {
-      if (listener != null)
-          listener.peerChange(this, peer);
+    if (listener != null)
+      listener.peerChange(this, peer);
 
-      synchronized(wantedPieces)
+    synchronized(wantedPieces)
       {
-          return wantedPieces.contains(new Integer(piece));
+	return wantedPieces.contains(new Integer(piece));
       }
   }
 
@@ -311,20 +298,20 @@ public class PeerCoordinator implements PeerListener
    */
   public boolean gotBitField(Peer peer, BitField bitfield)
   {
-      if (listener != null)
-          listener.peerChange(this, peer);
+    if (listener != null)
+      listener.peerChange(this, peer);
 
-      synchronized(wantedPieces)
+    synchronized(wantedPieces)
       {
-          Iterator it = wantedPieces.iterator();
-          while (it.hasNext())
-          {
-              int i = ((Integer)it.next()).intValue();
-              if (bitfield.get(i))
-                return true;
-          }
+	Iterator it = wantedPieces.iterator();
+	while (it.hasNext())
+	  {
+	    int i = ((Integer)it.next()).intValue();
+	    if (bitfield.get(i))
+	      return true;
+	  }
       }
-      return false;
+    return false;
   }
 
   /**
@@ -383,8 +370,6 @@ public class PeerCoordinator implements PeerListener
       }
   }
 
-  //> ERIC: figure out if uploaded is what has been uploaded to me or vice versa
-
   /**
    * Called when a peer has uploaded some bytes of a piece.
    */
@@ -407,7 +392,6 @@ public class PeerCoordinator implements PeerListener
       listener.peerChange(this, peer);
   }
 
-  //> ERIC: hash checking is here
   /**
    * Returns false if the piece is no good (according to the hash).
    * In that case the peer that supplied the piece should probably be

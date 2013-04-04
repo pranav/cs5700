@@ -41,157 +41,159 @@ class PeerCheckerTask extends TimerTask
   {
     synchronized(coordinator.peers)
       {
-	// Calculate total uploading and worst downloader.
-	long worstdownload = Long.MAX_VALUE;
-	Peer worstDownloader = null;
+        // Calculate total uploading and worst downloader.
+        long worstdownload = Long.MAX_VALUE;
+        Peer worstDownloader = null;
 
-	int peers = 0;
-	int uploaders = 0;
-	int downloaders = 0;
-	int interested = 0;
-	int interesting = 0;
-	int choking = 0;
-	int choked = 0;
+        int peers = 0;
+        int uploaders = 0;
+        int downloaders = 0;
+        int interested = 0;
+        int interesting = 0;
+        int choking = 0;
+        int choked = 0;
 
-	long uploaded = 0;
-	long downloaded = 0;
+        long uploaded = 0;
+        long downloaded = 0;
 
-	// Keep track of peers we remove now,
-	// we will add them back to the end of the list.
-	List removed = new ArrayList();
+        // Keep track of peers we remove now,
+        // we will add them back to the end of the list.
+        List removed = new ArrayList();
 
-	Iterator it = coordinator.peers.iterator();
-	while (it.hasNext())
-	  {
-	    Peer peer = (Peer)it.next();
+        Iterator it = coordinator.peers.iterator();
+        while (it.hasNext())
+          {
+            Peer peer = (Peer)it.next();
 
-	    // Remove dying peers
-	    if (!peer.isConnected())
-	      {
-		it.remove();
-		continue;
-	      }
+            // Remove dying peers
+            if (!peer.isConnected())
+              {
+            it.remove();
+            continue;
+              }
 
-	    peers++;
+            peers++;
 
-	    if (!peer.isChoking())
-	      uploaders++;
-	    if (!peer.isChoked() && peer.isInteresting())
-	      downloaders++;
-	    if (peer.isInterested())
-	      interested++;
-	    if (peer.isInteresting())
-	      interesting++;
-	    if (peer.isChoking())
-	      choking++;
-	    if (peer.isChoked())
-	      choked++;
+            if (!peer.isChoking())
+              uploaders++;
+            if (!peer.isChoked() && peer.isInteresting())
+              downloaders++;
+            if (peer.isInterested())
+              interested++;
+            if (peer.isInteresting())
+              interesting++;
+            if (peer.isChoking())
+              choking++;
+            if (peer.isChoked())
+              choked++;
 
-	    // XXX - We should calculate the up/download rate a bit
-	    // more intelligently
-	    long upload = peer.getUploaded();
-	    uploaded += upload;
-	    long download = peer.getDownloaded();
-	    downloaded += download;
-	    peer.resetCounters();
+            //> ERIC: We should calculate the up/download rate a bit more
+            //> maliciously
+            // XXX - We should calculate the up/download rate a bit
+            // more intelligently
+            long upload = peer.getUploaded();
+            uploaded += upload;
+            long download = peer.getDownloaded();
+            downloaded += download;
+            peer.resetCounters();
 
-	    if (Snark.debug >= Snark.DEBUG)
-	      {
-		Snark.debug(peer + ":", Snark.DEBUG);
-		Snark.debug(" ul: " + upload/KILOPERSECOND
-			    + " dl: " + download/KILOPERSECOND
-			    + " i: " + peer.isInterested()
-			    + " I: " + peer.isInteresting()
-			    + " c: " + peer.isChoking()
-			    + " C: " + peer.isChoked(),
-			    Snark.DEBUG);
-	      }
+            if (Snark.debug >= Snark.DEBUG)
+            {
+                Snark.debug(peer + ":", Snark.DEBUG);
+                Snark.debug(" ul: " + upload/KILOPERSECOND
+                          + " dl: " + download/KILOPERSECOND
+                          + " i: " + peer.isInterested()
+                          + " I: " + peer.isInteresting()
+                          + " c: " + peer.isChoking()
+                          + " C: " + peer.isChoked(),
+                          Snark.DEBUG);
+            }
 
-	    // If we are at our max uploaders and we have lots of other
-	    // interested peers try to make some room.
-	    // (Note use of coordinator.uploaders)
-	    if (coordinator.uploaders >= PeerCoordinator.MAX_UPLOADERS
-		&& interested > PeerCoordinator.MAX_UPLOADERS
-		&& !peer.isChoking())
-	      {
-		// Check if it still wants pieces from us.
-		if (!peer.isInterested())
-		  {
-		    if (Snark.debug >= Snark.INFO)
-		      Snark.debug("Choke uninterested peer: " + peer,
-				  Snark.INFO);
-		    peer.setChoking(true);
-		    uploaders--;
-		    coordinator.uploaders--;
-		    
-		    // Put it at the back of the list
-		    it.remove();
-		    removed.add(peer);
-		  }
-		else if (peer.isChoked())
-		  {
-		    // If they are choking us make someone else a downloader
-		    if (Snark.debug >= Snark.DEBUG)
-		      Snark.debug("Choke choking peer: " + peer, Snark.DEBUG);
-		    peer.setChoking(true);
-		    uploaders--;
-		    coordinator.uploaders--;
-		    
-		    // Put it at the back of the list
-		    it.remove();
-		    removed.add(peer);
-		  }
-		else if (peer.isInteresting()
-			 && !peer.isChoked()
-			 && download == 0)
-		  {
-		    // We are downloading but didn't receive anything...
-		    if (Snark.debug >= Snark.DEBUG)
-		      Snark.debug("Choke downloader that doesn't deliver:"
-				  + peer, Snark.DEBUG);
-		    peer.setChoking(true);
-		    uploaders--;
-		    coordinator.uploaders--;
-		    
-		    // Put it at the back of the list
-		    it.remove();
-		    removed.add(peer);
-		  }
-		else if (!peer.isChoking() && download < worstdownload)
-		  {
-		    // Make sure download is good if we are uploading
-		    worstdownload = download;
-		    worstDownloader = peer;
-		  }
-	      }
-	  }
+            // If we are at our max uploaders and we have lots of other
+            // interested peers try to make some room.
+            // (Note use of coordinator.uploaders)
+            if (coordinator.uploaders >= PeerCoordinator.MAX_UPLOADERS
+                && interested > PeerCoordinator.MAX_UPLOADERS
+                && !peer.isChoking())
+            {
+                // Check if it still wants pieces from us.
+                if (!peer.isInterested())
+                {
+                    if (Snark.debug >= Snark.INFO)
+                      Snark.debug("Choke uninterested peer: " + peer,
+                          Snark.INFO);
+                    peer.setChoking(true);
+                    uploaders--;
+                    coordinator.uploaders--;
+                    
+                    // Put it at the back of the list
+                    it.remove();
+                    removed.add(peer);
+                }
+                else if (peer.isChoked())
+                {
+                    // If they are choking us make someone else a downloader
+                    if (Snark.debug >= Snark.DEBUG)
+                      Snark.debug("Choke choking peer: " + peer, Snark.DEBUG);
+                    peer.setChoking(true);
+                    uploaders--;
+                    coordinator.uploaders--;
+                    
+                    // Put it at the back of the list
+                    it.remove();
+                    removed.add(peer);
+                }
+                else if (peer.isInteresting()
+                     && !peer.isChoked()
+                     && download == 0)
+                {
+                    // We are downloading but didn't receive anything...
+                    if (Snark.debug >= Snark.DEBUG)
+                      Snark.debug("Choke downloader that doesn't deliver:"
+                          + peer, Snark.DEBUG);
+                    peer.setChoking(true);
+                    uploaders--;
+                    coordinator.uploaders--;
+                    
+                    // Put it at the back of the list
+                    it.remove();
+                    removed.add(peer);
+                }
+                else if (!peer.isChoking() && download < worstdownload)
+                {
+                    // Make sure download is good if we are uploading
+                    worstdownload = download;
+                    worstDownloader = peer;
+                }
+            }
+        }
 
-	// Resync actual uploaders value
-	// (can shift a bit by disconnecting peers)
-	coordinator.uploaders = uploaders;
+        // Resync actual uploaders value
+        // (can shift a bit by disconnecting peers)
+        coordinator.uploaders = uploaders;
 
-	// Remove the worst downloader if needed.
-	if (uploaders >= PeerCoordinator.MAX_UPLOADERS
-	    && interested > PeerCoordinator.MAX_UPLOADERS
-	    && worstDownloader != null)
-	  {
-	    if (Snark.debug >= Snark.DEBUG)
-	      Snark.debug("Choke worst downloader: " + worstDownloader,
-			  Snark.DEBUG);
+        // Remove the worst downloader if needed.
+        if (uploaders >= PeerCoordinator.MAX_UPLOADERS
+            && interested > PeerCoordinator.MAX_UPLOADERS
+            && worstDownloader != null)
+        {
+            if (Snark.debug >= Snark.DEBUG)
+                Snark.debug("Choke worst downloader: " + worstDownloader,
+                            Snark.DEBUG);
 
-	    worstDownloader.setChoking(true);
-	    coordinator.uploaders--;
+            worstDownloader.setChoking(true);
+            coordinator.uploaders--;
 
-	    // Put it at the back of the list
-	    coordinator.peers.remove(worstDownloader);
-	    removed.add(worstDownloader);
-	  }
-	
-	// Optimistically unchoke a peer
-	coordinator.unchokePeer();
+            // Put it at the back of the list
+            coordinator.peers.remove(worstDownloader);
+            removed.add(worstDownloader);
+        }
+        
+        // Optimistically unchoke a peer
+        coordinator.unchokePeer();
 
-	// Put peers back at the end of the list that we removed earlier.
-	coordinator.peers.addAll(removed);
+        // Put peers back at the end of the list that we removed earlier.
+        coordinator.peers.addAll(removed);
       }
   }
 }

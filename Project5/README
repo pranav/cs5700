@@ -14,6 +14,14 @@ Members: Eric Chin, Pranav Gandhi
 * DOS
 * Other malicious things
 
+
+* Interesting: PeerCoordinator.java
+  - what's a BitField?
+
+* Interesting: PeerCheckerTask.java (with TimerTask that checks for good/bad
+  up/downloaders; works with PeerCoordinator to select which Peers get (un)choked
+
+
 # Pieces of Snark
 
 * BitField - Container of a byte array representing set and unset bits.
@@ -25,13 +33,13 @@ Members: Eric Chin, Pranav Gandhi
 * Message - A protocol message which can be send through a DataOutputStream.
 * MetaInfo - Holds all information gotten from a torrent file.
 * PeerAcceptor - Accepts incomming connections from peers.
-* PeerCheckTasks - TimerTask that checks for good/bad up/downloaders.
++* PeerCheckTasks - TimerTask that checks for good/bad up/downloaders.
 * PeerConnectionIn - Handles incomming messages and hands them to PeerState.
 * PeerConnectionOut - Keeps a queue of outgoing messages and delivers them.
-* PeerCoordinator - Coordinates which peers do what (up and downloading).
++* PeerCoordinator - Coordinates which peers do what (up and downloading).
 * PeerID - All public information concerning a peer.
 * Peer - All public information concerning a peer.
-* PeerListener - Interface for listening to peer events.
++* PeerListener - Interface for listening to peer events.
 * PeerMonitorTasks - TimerTask that monitors the peers and total up/down speed
 * PeerState - Keeps track of the Peer state through connection callbacks.
 * Request - Holds all information needed for a (partial) piece request.

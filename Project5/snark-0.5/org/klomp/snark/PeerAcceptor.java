@@ -39,16 +39,16 @@ public class PeerAcceptor
   }
 
   public void connection(Socket socket,
-                         BufferedInputStream bis, BufferedOutputStream bos)
-                        throws IOException
+			 BufferedInputStream bis, BufferedOutputStream bos)
+    throws IOException
   {
-      if (coordinator.needPeers())
+    if (coordinator.needPeers())
       {
-          Peer peer = new Peer(socket, bis, bos, coordinator.getID(),
-                               coordinator.getMetaInfo());
-          coordinator.addPeer(peer);
+	Peer peer = new Peer(socket, bis, bos, coordinator.getID(),
+			     coordinator.getMetaInfo());
+	coordinator.addPeer(peer);
       }
-      else
-          socket.close();
+    else
+      socket.close();
   }
 }
