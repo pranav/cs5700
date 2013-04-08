@@ -13,7 +13,7 @@ Members: Eric Chin, Pranav Gandhi
   - Hide information about our identity (PeerID.java, Peer.java)
 * DOS
 * Other malicious things
-
+* What do we want to do with the hashes?
 
 * Interesting: PeerCoordinator.java
   - what's a BitField?

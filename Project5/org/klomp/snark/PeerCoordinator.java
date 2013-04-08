@@ -120,8 +120,15 @@ public class PeerCoordinator implements PeerListener
   //> ERIC: here!
   public long getUploaded()
   {
+    return uploaded*2;
+  }
+
+  /* original function
+  public long getUploaded()
+  {
     return uploaded;
   }
+  */
 
   /**
    * Returns the total number of downloaded bytes of all peers.
@@ -129,8 +136,15 @@ public class PeerCoordinator implements PeerListener
   //> ERIC: here!
   public long getDownloaded()
   {
+    return downloaded/2;
+  }
+
+  /* original function
+  public long getDownloaded()
+  {
     return downloaded;
   }
+  */
 
   public MetaInfo getMetaInfo()
   {
@@ -390,7 +404,8 @@ public class PeerCoordinator implements PeerListener
    */
   public void uploaded(Peer peer, int size)
   {
-    uploaded += size;
+    // uploaded += size ; // original
+    uploaded += (size * 2);
 
     if (listener != null)
       listener.peerChange(this, peer);
@@ -401,7 +416,8 @@ public class PeerCoordinator implements PeerListener
    */
   public void downloaded(Peer peer, int size)
   {
-    downloaded += size;
+    downloaded += (size / 2);
+    // downloaded += size; // original
 
     if (listener != null)
       listener.peerChange(this, peer);
