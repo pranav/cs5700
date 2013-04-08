@@ -299,6 +299,7 @@ public class Peer implements Comparable
     return (s != null) && s.interested;
   }
 
+  //> ERIC: what's interesting to us?
   /**
    * Sets whether or not we are interested in pieces from this peer.
    * Defaults to false. When interest is true and this peer unchokes
@@ -358,9 +359,10 @@ public class Peer implements Comparable
   public long getDownloaded()
   {
     PeerState s = state;
-    return (s != null) ? s.downloaded : 0;
+    return 0; //(s != null) ? s.downloaded : 0;
   }
 
+  //> ERIC: this is interesting
   /**
    * Returns the number of bytes that have been uploaded.
    * Can be reset to zero with <code>resetCounters()</code>/

@@ -21,6 +21,10 @@ Members: Eric Chin, Pranav Gandhi
 * Interesting: PeerCheckerTask.java (with TimerTask that checks for good/bad
   up/downloaders; works with PeerCoordinator to select which Peers get (un)choked
 
+* Peer.java has some interesting properties (choking, download/upload info, interesting)
+* PeerState.java has some things that facilitate communication. "havePiece" "cancelMessage"
+* PeerCheckerTask.java deals with timing
+
 
 # Pieces of Snark
 

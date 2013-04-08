@@ -377,23 +377,25 @@ class PeerState
 
     synchronized(this)
       {
-	// Tell the other side that we are no longer interested in any of
-	// the outstanding requests for this piece.
-	if (lastRequest != null && lastRequest.piece == piece)
-	  lastRequest = null;
-	
-	Iterator it = outstandingRequests.iterator();
-	while (it.hasNext())
-	  {
-	    Request req = (Request)it.next();
-	    if (req.piece == piece)
-	      {
-		it.remove();
-		// Send cancel even when we are choked to make sure that it is
-		// really never ever send.
-		out.sendCancel(req);
-	      }
-	  }
+        //> ERIC: let's pretend like we don't have the piece
+        
+        // Tell the other side that we are no longer interested in any of
+        // the outstanding requests for this piece.
+        if (lastRequest != null && lastRequest.piece == piece)
+          lastRequest = null;
+        
+        Iterator it = outstandingRequests.iterator();
+        while (it.hasNext())
+        {
+            Request req = (Request)it.next();
+            if (req.piece == piece)
+            {
+                it.remove();
+                // Send cancel even when we are choked to make sure that it is
+                // really never ever send.
+                out.sendCancel(req);
+            }
+        }
       }
     
     // Tell the other side that we really have this piece.
@@ -404,9 +406,9 @@ class PeerState
     
     synchronized(this)
       {
-	// Is the peer still interesting?
-	if (lastRequest == null)
-	  setInteresting(false);
+        // Is the peer still interesting?
+        if (lastRequest == null)
+          setInteresting(false);
       }
   }
 
@@ -484,28 +486,29 @@ class PeerState
   {
     // Check that we already know what the other side has.
     if (bitfield != null)
-      {
-	int nextPiece = listener.wantPiece(peer, bitfield);
-	if (Snark.debug >= Snark.DEBUG)
-	  Snark.debug(peer + " want piece " + nextPiece, Snark.DEBUG);
-	synchronized(this)
-	  {
-	    if (nextPiece != -1
-		&& (lastRequest == null || lastRequest.piece != nextPiece))
-	      {
-		int piece_length = metainfo.getPieceLength(nextPiece);
-		byte[] bs = new byte[piece_length];
-		
-		int length = Math.min(piece_length, PARTSIZE);
-		Request req = new Request(nextPiece, bs, 0, length);
-		outstandingRequests.add(req);
-		if (!choked)
-		  out.sendRequest(req);
-		lastRequest = req;
-		return true;
-	      }
-	  }
-      }
+    {
+        int nextPiece = listener.wantPiece(peer, bitfield);
+        if (Snark.debug >= Snark.DEBUG)
+          Snark.debug(peer + " want piece " + nextPiece, Snark.DEBUG);
+
+        synchronized(this)
+        {
+            if (nextPiece != -1
+            && (lastRequest == null || lastRequest.piece != nextPiece))
+            {
+                int piece_length = metainfo.getPieceLength(nextPiece);
+                byte[] bs = new byte[piece_length];
+                
+                int length = Math.min(piece_length, PARTSIZE);
+                Request req = new Request(nextPiece, bs, 0, length);
+                outstandingRequests.add(req);
+                if (!choked)
+                  out.sendRequest(req);
+                lastRequest = req;
+                return true;
+            }
+        }
+    }
 
     return false;
   }
@@ -516,13 +519,13 @@ class PeerState
       Snark.debug(peer + " setInteresting(" + interest + ")", Snark.DEBUG);
 
     if (interest != interesting)
-      {
-	interesting = interest;
-	out.sendInterest(interest);
+    {
+        interesting = interest;
+        out.sendInterest(interest);
 
-	if (interesting && !choked)
-	  request();
-      }
+        if (interesting && !choked)
+          request();
+    }
   }
 
   synchronized void setChoking(boolean choke)
@@ -532,8 +535,8 @@ class PeerState
 
     if (choking != choke)
       {
-	choking = choke;
-	out.sendChoke(choke);
+        choking = choke;
+        out.sendChoke(choke);
       }
   }
 }
