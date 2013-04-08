@@ -352,6 +352,7 @@ public class Peer implements Comparable
     return (s == null) || s.choked;
   }
 
+  //> ERIC: this is interesting too...downloaded = how much did we download?
   /**
    * Returns the number of bytes that have been downloaded.
    * Can be reset to zero with <code>resetCounters()</code>/
@@ -370,7 +371,7 @@ public class Peer implements Comparable
   public long getUploaded()
   {
     PeerState s = state;
-    return (s != null) ? s.uploaded : 0;
+    return (s != null) ? s.uploaded*2 : 0;
   }
 
   /**

@@ -25,6 +25,19 @@ Members: Eric Chin, Pranav Gandhi
 * PeerState.java has some things that facilitate communication. "havePiece" "cancelMessage"
 * PeerCheckerTask.java deals with timing
 
+# Notes
+
+* Downloaded = amount we have downloaded
+* Uploaded = amount we have uploaded
+* Downloader = a peer downloading from us
+* Uploader = me
+
+# Questions
+
+* so if i change the program to report that peers don't upload anything to us such that
+  we're the only ones uploading, then how does that affect choking?
+  - I think we may need to change this so that we know that we're *actually* downloading from someone.
+* should we download only from people who give us more than we give them?
 
 # Pieces of Snark
 
