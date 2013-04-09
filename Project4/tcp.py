@@ -40,13 +40,14 @@ class Shoe:
     self.destination_ip_hex = socket.inet_aton(self.destination_ip)
     self.local_ip = self.get_local_ip()
     self.local_ip_hex = socket.inet_aton(self.local_ip)
-    self.local_port = 3233
+    self.local_port = 3234
 
     self.data = ""
     self.sequence = self.random_sequence()
 
+    #> ERIC: we need to bind to something that is not 0.0.0.0.
     self.recv_sock = socket.socket( socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP )
-    self.recv_sock.bind(('0.0.0.0', self.local_port))
+    self.recv_sock.bind((self.local_ip, self.local_port))
     self.recv_sock.setblocking(1)
 
     self.do_handshake()
@@ -172,6 +173,7 @@ class Shoe:
 
 
   # Get the local machines IP address
+  #> ERIC: this is where we need to change something
   def get_local_ip(self):
     return socket.gethostbyname(socket.gethostname())
 
