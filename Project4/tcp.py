@@ -32,6 +32,15 @@ class Shoe:
   def random_sequence(self):
     return random.randint(100, 10000000)
 
+  def get_open_port(self):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("",0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
   # The initial connection that will do the 3 way handshake
   def connect(self, hostport):
     self.destination_hostname = hostport[0]
@@ -40,7 +49,7 @@ class Shoe:
     self.destination_ip_hex = socket.inet_aton(self.destination_ip)
     self.local_ip = self.get_local_ip()
     self.local_ip_hex = socket.inet_aton(self.local_ip)
-    self.local_port = 3234
+    self.local_port = self.get_open_port()
 
     self.data = ""
     self.sequence = self.random_sequence()

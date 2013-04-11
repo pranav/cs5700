@@ -50,10 +50,19 @@ else:
   path = "/index.html"
 """
 
-url = urlparse(sys.argv[1])
+rawurl = sys.argv[1]
+
+if "http" not in rawurl:
+  rawurl = "http://" + rawurl
+
+url = urlparse(rawurl)
 print url
 hostname = url.netloc
 path = url.path
+
+if len(path) == 0:
+  path = "/index.html"
+
 print "hostname: ", hostname
 print "path: ", path
 
