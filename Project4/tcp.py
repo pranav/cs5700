@@ -10,6 +10,11 @@ import socket, random, time
 from struct import *
 from ip import *
 
+import struct
+import socket
+# only to get ip address
+import fcntl
+
 def get_ts():
   return int("".join(repr(time.time())[-11:-1].split(".")))
 
@@ -184,8 +189,11 @@ class Shoe:
   # Get the local machines IP address
   #> ERIC: this is where we need to change something
   def get_local_ip(self):
-    return socket.gethostbyname(socket.gethostname())
+    # Work here
+    ifname = "eth0"
 
+    s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa( fcntl.ioctl( s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
   # Get the destination's IP address
   def get_destination_ip(self):
