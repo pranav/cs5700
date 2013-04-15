@@ -57,7 +57,9 @@ public class Storage
     int pieces;
 
     /** The default piece size. */
-    private static int MIN_PIECE_SIZE = 256 * 1024;
+    // ERIC: 64 kbs instead of 256
+    private static int MIN_PIECE_SIZE = 64 * 1024;
+    //private static int MIN_PIECE_SIZE = 256 * 1024;
 
     /** The maximum number of pieces in a torrent. */
     private static long MAX_PIECES = 100 * 1024 / 20;

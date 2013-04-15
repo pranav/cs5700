@@ -24,6 +24,12 @@ Members: Eric Chin, Pranav Gandhi
 * Peer.java has some interesting properties (choking, download/upload info, interesting)
 * PeerState.java has some things that facilitate communication. "havePiece" "cancelMessage"
 * PeerCheckerTask.java deals with timing
+* upload bad data
+
+* say we have every piece, ignore fact we may not have it, send bad data even if we don't have it
+  - peerconnectionout:sendPiece, sendHave
+* if we're choked, drop them from peers
+* choke faster
 
 # Notes
 
