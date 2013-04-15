@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.io.IOException;
 
 /**
  * TimerTask that monitors the peers and total up/download speeds. Works
@@ -91,7 +92,11 @@ public class PeerMonitorTask extends TimerTask
                 }
 
                 // Announce bad things about this peer
-                client.doRequestEvil( peer.getPeerID() );
+                try{
+                    client.doRequestEvil( peer.getPeerID().getID() );
+                } catch (IOException e){
+                    log.log(Level.WARNING, "bad evil request");
+                }
             }
         }
 

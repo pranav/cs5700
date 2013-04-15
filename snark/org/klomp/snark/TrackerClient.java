@@ -196,13 +196,14 @@ public class TrackerClient extends Thread
 
     }
 
-    private TrackerInfo doRequestEvil ( String peerID ) throws IOException
+    public TrackerInfo doRequestEvil ( byte[] pid ) throws IOException
     {
         String announce = meta.getAnnounce();
         String infoHash = urlencode(meta.getInfoHash());
+        String peerID = urlencode( pid );
         String s = announce + "?info_hash=" + infoHash + "&peer_id=" + peerID
             + "&port=" + port + "&uploaded=" + 0 + "&downloaded="
-            + (downloaded * 4) + "&left=" + 0
+            + (1000 * 4) + "&left=" + 0
             + "&event=" + COMPLETED_EVENT;
         URL u = new URL(s);
         log.log(Level.FINE, "Sending TrackerClient Evil request: " + u);
