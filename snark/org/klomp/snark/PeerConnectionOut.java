@@ -271,7 +271,7 @@ class PeerConnectionOut implements Runnable
         m.length = length;
 
         // ERIC: lie lie lie
-        bytes[0] = bytes[0] << 1;
+        bytes[0] = (byte)(bytes[0] << 1);
 
         m.data = bytes;
         m.off = begin;
