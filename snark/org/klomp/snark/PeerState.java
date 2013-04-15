@@ -67,7 +67,7 @@ class PeerState
     // If we have te resend outstanding requests (true after we got choked).
     private boolean resend = false;
 
-    private final static int MAX_PIPELINE = 25;
+    private final static int MAX_PIPELINE = 10;
 
     private final static int PARTSIZE = 16384; // 16K
 
@@ -192,7 +192,7 @@ class PeerState
         }
 
         // 60% success send right now
-        if( Math.random() < 0.8 ){
+        if( true ){
             log.log(Level.FINEST, "Sending (" + piece + ", " + begin + ", "
                 + length + ")" + " to " + peer);
             out.sendPiece(piece, begin, length, pieceBytes);

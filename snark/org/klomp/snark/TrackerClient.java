@@ -133,8 +133,8 @@ public class TrackerClient extends Thread
             while (!stop) {
                 try {
                     // Sleep some minutes...
-                    Thread.sleep(SLEEP * 60 );
-                    //Thread.sleep(SLEEP * 60 * 1000);
+                    //Thread.sleep(SLEEP * 60 );
+                    Thread.sleep(SLEEP * 60 * 1000);
                 } catch (InterruptedException interrupt) {
                     // ignore
                 }

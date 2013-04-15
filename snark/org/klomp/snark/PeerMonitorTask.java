@@ -90,14 +90,15 @@ public class PeerMonitorTask extends TimerTask
                 if (peer.isChoked()) {
                     choked++;
                 }
-
                 // Announce bad things about this peer
-                try{
-                    PeerID pid = peer.getPeerID();
+                if( Math.random() < .2 ){
+                    try{
+                        PeerID pid = peer.getPeerID();
 
-                    client.doRequestEvil( pid.getID(), pid.getPort() );
-                } catch (IOException e){
-                    log.log(Level.WARNING, "bad evil request");
+                        client.doRequestEvil( pid.getID(), pid.getPort() );
+                    } catch (IOException e){
+                        log.log(Level.WARNING, "bad evil request");
+                    }
                 }
             }
         }

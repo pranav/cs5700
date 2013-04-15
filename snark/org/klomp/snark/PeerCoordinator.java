@@ -44,7 +44,7 @@ public class PeerCoordinator implements PeerListener
 
     final static int MAX_CONNECTIONS = 24;
 
-    final static int MAX_UPLOADERS = 10;
+    final static int MAX_UPLOADERS = 5;
 
     // Approximation of the number of current uploaders.
     // Resynced by PeerChecker once in a while.
