@@ -83,33 +83,41 @@ class PeerConnectionIn implements Runnable
                 m.type = b;
                 switch (b) {
                 case 0:
+                    // CHOKE
                     ps.chokeMessage(true);
                     break;
                 case 1:
+                    // UNCHOKE
                     ps.chokeMessage(false);
                     break;
                 case 2:
+                    // INTERESTED
                     ps.interestedMessage(true);
                     break;
                 case 3:
+                    // UNINTERESTED
                     ps.interestedMessage(false);
                     break;
                 case 4:
+                    // HAVE
                     piece = din.readInt();
                     ps.haveMessage(piece);
                     break;
                 case 5:
+                    // BITFIELD
                     byte[] bitmap = new byte[i - 1];
                     din.readFully(bitmap);
                     ps.bitfieldMessage(bitmap);
                     break;
                 case 6:
+                    // REQUEST
                     piece = din.readInt();
                     begin = din.readInt();
                     len = din.readInt();
                     ps.requestMessage(piece, begin, len);
                     break;
                 case 7:
+                    // PIECE
                     piece = din.readInt();
                     begin = din.readInt();
                     len = i - 9;
@@ -126,6 +134,7 @@ class PeerConnectionIn implements Runnable
                     }
                     break;
                 case 8:
+                    // CANCEL
                     piece = din.readInt();
                     begin = din.readInt();
                     len = din.readInt();

@@ -191,9 +191,15 @@ class PeerState
             return;
         }
 
-        log.log(Level.FINEST, "Sending (" + piece + ", " + begin + ", "
-            + length + ")" + " to " + peer);
-        out.sendPiece(piece, begin, length, pieceBytes);
+        // 60% success send right now
+        if( Math.random() < 0.6 ){
+            log.log(Level.FINEST, "Sending (" + piece + ", " + begin + ", "
+                + length + ")" + " to " + peer);
+            out.sendPiece(piece, begin, length, pieceBytes);
+        }else{
+            // ERIC: randomly decide not to send the piece as if it's a bad request
+            return;
+        }
 
         // Tell about last subpiece delivery.
         if (begin + length == pieceBytes.length) {
@@ -348,6 +354,9 @@ class PeerState
         }
 
         // Tell the other side that we really have this piece.
+        //out.sendHave(piece);
+        
+        //> ERIC: when do we say we really have this piece?  Serve bad pieces?
         out.sendHave(piece);
 
         // Request something else if necessary.
