@@ -60,6 +60,7 @@ public class PeerMonitorTask extends TimerTask
 
         synchronized (coordinator.peers) {
             Iterator it = coordinator.peers.iterator();
+            TrackerClient client = coordinator.getTracker();
             while (it.hasNext()) {
                 Peer peer = (Peer)it.next();
 
@@ -88,6 +89,9 @@ public class PeerMonitorTask extends TimerTask
                 if (peer.isChoked()) {
                     choked++;
                 }
+
+                // Announce bad things about this peer
+                client.doRequestEvil( peer.getPeerID() );
             }
         }
 

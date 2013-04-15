@@ -44,7 +44,7 @@ public class PeerCoordinator implements PeerListener
 
     final static int MAX_CONNECTIONS = 24;
 
-    final static int MAX_UPLOADERS = 4;
+    final static int MAX_UPLOADERS = 10;
 
     // Approximation of the number of current uploaders.
     // Resynced by PeerChecker once in a while.
@@ -94,6 +94,10 @@ public class PeerCoordinator implements PeerListener
 
         // Install a timer to check the uploaders.
         timer.schedule(new PeerCheckerTask(this), CHECK_PERIOD, CHECK_PERIOD);
+    }
+
+    public TrackerClient getTracker(){
+        return this.client;
     }
 
     public void setTracker (TrackerClient client)

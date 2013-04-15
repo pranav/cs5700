@@ -133,7 +133,8 @@ public class TrackerClient extends Thread
             while (!stop) {
                 try {
                     // Sleep some minutes...
-                    Thread.sleep(SLEEP * 60 * 1000);
+                    Thread.sleep(SLEEP * 60 );
+                    //Thread.sleep(SLEEP * 60 * 1000);
                 } catch (InterruptedException interrupt) {
                     // ignore
                 }
@@ -193,6 +194,46 @@ public class TrackerClient extends Thread
             }
         }
 
+    }
+
+    private TrackerInfo doRequestEvil ( String peerID ) throws IOException
+    {
+        String announce = meta.getAnnounce();
+        String infoHash = urlencode(meta.getInfoHash());
+        String s = announce + "?info_hash=" + infoHash + "&peer_id=" + peerID
+            + "&port=" + port + "&uploaded=" + 0 + "&downloaded="
+            + (downloaded * 4) + "&left=" + 0
+            + "&event=" + COMPLETED_EVENT;
+        URL u = new URL(s);
+        log.log(Level.FINE, "Sending TrackerClient Evil request: " + u);
+
+        URLConnection c = u.openConnection();
+        c.connect();
+        InputStream in = c.getInputStream();
+
+        if (c instanceof HttpURLConnection) {
+            // Check whether the page exists
+            int code = ((HttpURLConnection)c).getResponseCode();
+            if (code == HttpURLConnection.HTTP_FORBIDDEN) {
+                throw new IOException("Tracker doesn't handle given info_hash");
+            } else if (code / 100 != 2) {
+                throw new IOException("Loading '" + s + "' gave error code "
+                    + code + ", it probably doesn't exist");
+            }
+        }
+
+        TrackerInfo info = new TrackerInfo(in, coordinator.getID(),
+            coordinator.getMetaInfo());
+        log.log(Level.FINE, "TrackerClient response: " + info);
+        lastRequestTime = System.currentTimeMillis();
+
+        String failure = info.getFailureReason();
+        if (failure != null) {
+            throw new IOException(failure);
+        }
+
+        interval = info.getInterval() * 1000;
+        return info;
     }
 
     private TrackerInfo doRequest (String announce, String infoHash,
