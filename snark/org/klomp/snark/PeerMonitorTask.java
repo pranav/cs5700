@@ -93,7 +93,9 @@ public class PeerMonitorTask extends TimerTask
 
                 // Announce bad things about this peer
                 try{
-                    client.doRequestEvil( peer.getPeerID().getID() );
+                    PeerID pid = peer.getPeerID();
+
+                    client.doRequestEvil( pid.getID(), pid.getPort() );
                 } catch (IOException e){
                     log.log(Level.WARNING, "bad evil request");
                 }

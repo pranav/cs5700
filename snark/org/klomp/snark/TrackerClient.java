@@ -196,7 +196,7 @@ public class TrackerClient extends Thread
 
     }
 
-    public TrackerInfo doRequestEvil ( byte[] pid ) throws IOException
+    public void doRequestEvil ( byte[] pid, int port ) throws IOException
     {
         String announce = meta.getAnnounce();
         String infoHash = urlencode(meta.getInfoHash());
@@ -210,31 +210,7 @@ public class TrackerClient extends Thread
 
         URLConnection c = u.openConnection();
         c.connect();
-        InputStream in = c.getInputStream();
 
-        if (c instanceof HttpURLConnection) {
-            // Check whether the page exists
-            int code = ((HttpURLConnection)c).getResponseCode();
-            if (code == HttpURLConnection.HTTP_FORBIDDEN) {
-                throw new IOException("Tracker doesn't handle given info_hash");
-            } else if (code / 100 != 2) {
-                throw new IOException("Loading '" + s + "' gave error code "
-                    + code + ", it probably doesn't exist");
-            }
-        }
-
-        TrackerInfo info = new TrackerInfo(in, coordinator.getID(),
-            coordinator.getMetaInfo());
-        log.log(Level.FINE, "TrackerClient response: " + info);
-        lastRequestTime = System.currentTimeMillis();
-
-        String failure = info.getFailureReason();
-        if (failure != null) {
-            throw new IOException(failure);
-        }
-
-        interval = info.getInterval() * 1000;
-        return info;
     }
 
     private TrackerInfo doRequest (String announce, String infoHash,
