@@ -1,0 +1,72 @@
+
+# CS5700 Project 5: Cheating BitTorrent Client
+
+Team: ThanksObama
+Members: Eric Chin, Pranav Gandhi
+
+# Tasks
+
+* Lie
+  - Withhold information on what we have (Storage.java)
+  - Tell tracker we upload more than we do (TrackerClient.java, TrackerInfo.java)
+  - Throttle upload bandwidth (PeerMonitorTask.java)
+  - Hide information about our identity (PeerID.java, Peer.java)
+* DOS
+* Other malicious things
+* What do we want to do with the hashes?
+
+* Interesting: PeerCoordinator.java
+  - what's a BitField?
+
+* Interesting: PeerCheckerTask.java (with TimerTask that checks for good/bad
+  up/downloaders; works with PeerCoordinator to select which Peers get (un)choked
+
+* Peer.java has some interesting properties (choking, download/upload info, interesting)
+* PeerState.java has some things that facilitate communication. "havePiece" "cancelMessage"
+* PeerCheckerTask.java deals with timing
+
+# Notes
+
+* Downloaded = amount we have downloaded
+* Uploaded = amount we have uploaded
+* Downloader = a peer downloading from us
+* Uploader = me
+
+# Questions
+
+* so if i change the program to report that peers don't upload anything to us such that
+  we're the only ones uploading, then how does that affect choking?
+  - I think we may need to change this so that we know that we're *actually* downloading from someone.
+* should we download only from people who give us more than we give them?
+
+# Pieces of Snark
+
+* BitField - Container of a byte array representing set and unset bits.
+* ConnectionAcceptor - Accepts connections and routes them to sub-acceptors.
+* CoordinatorListener.java - Callback when a peer changes state
+* GnomeInfoWindow - Show properties of the file being shared.
+* GnomePeerList - Window that show the peers that are currently connected.
+* HttpAcceptor - Accepts incomming http connections.
+* Message - A protocol message which can be send through a DataOutputStream.
+* MetaInfo - Holds all information gotten from a torrent file.
+* PeerAcceptor - Accepts incomming connections from peers.
++* PeerCheckTasks - TimerTask that checks for good/bad up/downloaders.
+* PeerConnectionIn - Handles incomming messages and hands them to PeerState.
+* PeerConnectionOut - Keeps a queue of outgoing messages and delivers them.
++* PeerCoordinator - Coordinates which peers do what (up and downloading).
+* PeerID - All public information concerning a peer.
+* Peer - All public information concerning a peer.
++* PeerListener - Interface for listening to peer events.
+* PeerMonitorTasks - TimerTask that monitors the peers and total up/down speed
+* PeerState - Keeps track of the Peer state through connection callbacks.
+* Request - Holds all information needed for a (partial) piece request.
+* ShutdownListener - Callback for end of shutdown sequence
+* SnarkGnome - Main snark program startup class which uses a Gnome UI.
+* Snark - Main snark program startup class.
+* TrackerShutdown - Makes sure everything ends correctly when shutting down.
+* StaticSnark - Main snark startup class for staticly linking with gcj.
+* Storage - Class used to store and retrieve pieces.
+* StorageListener.java - Interface used as callback when storage changes.
+* TrackerClient - Class that informs a tracker and gets new peers.
+* TrackerInfo - Holds information returned by a tracker, mainly the peer list.
+* Tracker - Keeps track of clients sharing a particular torrent MetaInfo.
