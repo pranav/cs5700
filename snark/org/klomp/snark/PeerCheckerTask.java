@@ -176,7 +176,7 @@ class PeerCheckerTask extends TimerTask
             }
 
             // Optimistically unchoke a peer
-            coordinator.unchokePeer();
+            // coordinator.unchokePeer();
 
             // Put peers back at the end of the list that we removed earlier.
             coordinator.peers.addAll(removed);

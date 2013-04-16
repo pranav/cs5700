@@ -111,10 +111,12 @@ class PeerConnectionIn implements Runnable
                     break;
                 case 6:
                     // REQUEST
+                    /*
                     piece = din.readInt();
                     begin = din.readInt();
                     len = din.readInt();
                     ps.requestMessage(piece, begin, len);
+                    */
                     break;
                 case 7:
                     // PIECE
