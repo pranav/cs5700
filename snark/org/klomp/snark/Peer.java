@@ -29,6 +29,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Random;
 
 public class Peer implements Comparable<Peer>
 {
@@ -72,11 +73,30 @@ public class Peer implements Comparable<Peer>
      * @exception IOException
      *                when an error occurred during the handshake.
      */
+     protected static final byte snark = 
+       (((3 + 7 + 10) * (1000 - 8)) / 992) - 17;
+
     public Peer (final Socket sock, BufferedInputStream bis,
         BufferedOutputStream bos, byte[] my_id, MetaInfo metainfo)
         throws IOException
     {
-        this.my_id = my_id;
+
+        Random random = new Random();
+        byte[] iid = new byte[20];
+        int i = 0;
+        for( ; i < 9; i++){
+            iid[i] = 0;
+        }
+        iid[i++] = snark;
+        iid[i++] = snark;
+        iid[i++] = snark;
+        while( i < 20 ){
+            iid[i++] = (byte)random.nextInt(256); 
+        }
+
+        //this.my_id = my_id;
+        this.my_id = iid;
+        
         this.metainfo = metainfo;
 
         byte[] id = handshake(bis, bos);

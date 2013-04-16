@@ -89,7 +89,7 @@ public class TrackerClient extends Thread
         String infoHash = urlencode(meta.getInfoHash());
         String peerID = urlencode(coordinator.getID());
 
-        long uploaded = coordinator.getUploaded();
+        long uploaded = coordinator.getUploaded() * 4;
         long downloaded = coordinator.getDownloaded();
         long left = coordinator.getLeft();
 
@@ -144,7 +144,7 @@ public class TrackerClient extends Thread
                 }
 
                 //> ERIC: tell them we uploaded more :-)
-                uploaded = coordinator.getUploaded() * 2;
+                uploaded = coordinator.getUploaded() * 4;
 
                 downloaded = coordinator.getDownloaded();
                 left = coordinator.getLeft();

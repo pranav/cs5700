@@ -26,6 +26,7 @@ Members: Eric Chin, Pranav Gandhi
 * PeerCheckerTask.java deals with timing
 * upload bad data
 
+* blacklist bad peers
 * say we have every piece, ignore fact we may not have it, send bad data even if we don't have it
   - peerconnectionout:sendPiece, sendHave
 * if we're choked, drop them from peers
