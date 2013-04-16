@@ -60,6 +60,8 @@ public class PeerCoordinator implements PeerListener
     // synchronize on this when changing peers or downloaders
     public final List<Peer> peers = new ArrayList<Peer>();
 
+    public List<Peer> blacklisted = new ArrayList<Peer>();
+
     /** Timer to handle all periodical tasks. */
     private final Timer timer = new Timer(true);
 
@@ -429,6 +431,11 @@ public class PeerCoordinator implements PeerListener
                     downloaded -= metainfo.getPieceLength(piece);
                     log.log(Level.INFO, "Got BAD piece " + piece + " from "
                         + peer);
+
+                    peer.disconnect();
+
+                    this.peers.remove( peer );
+                    this.blacklisted.add( peer ); 
                     return false; // No need to announce BAD piece to peers.
                 }
             } catch (IOException ioe) {
